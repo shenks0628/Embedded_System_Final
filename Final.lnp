@@ -1,0 +1,6 @@
+"delay.obj",
+"keyscan.obj",
+"main.obj",
+"uart.obj" 
+TO "Final" 
+RAMSIZE(256) 

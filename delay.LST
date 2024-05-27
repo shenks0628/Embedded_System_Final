@@ -1,0 +1,46 @@
+C51 COMPILER V7.08   DELAY                                                                 05/27/2024 15:07:28 PAGE 1   
+
+
+C51 COMPILER V7.08, COMPILATION OF MODULE DELAY
+OBJECT MODULE PLACED IN delay.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE delay.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include "delay.h"
+   2          /*------------------------------------------------
+   3           uS延時函數，含有輸入參數 unsigned char t，無返回值
+   4           unsigned char 是定義無符號字符變量，其值的範圍是
+   5           0~255 這裡使用晶振12M，精確延時請使用彙編,大致延時
+   6           長度如下 T=tx2+5 uS
+   7          ------------------------------------------------*/
+   8          void DelayUs2x(unsigned char t) {
+   9   1          while (--t);
+  10   1      }
+  11          /*------------------------------------------------
+  12           mS延時函數，含有輸入參數 unsigned char t，無返回值
+  13           unsigned char 是定義無符號字符變量，其值的範圍是
+  14           0~255 這裡使用晶振12M，精確延時請使用彙編
+  15          ------------------------------------------------*/
+  16          void DelayMs(unsigned char t) {
+  17   1      
+  18   1          while (t--) {
+  19   2              //大致延時1mS
+  20   2              DelayUs2x(245);
+  21   2              DelayUs2x(245);
+  22   2          }
+  23   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     24    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

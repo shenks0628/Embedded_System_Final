@@ -1,50 +1,50 @@
-#include <reg52.h> // åŒ…å«æ¨™é ­æª”ï¼Œä¸€èˆ¬æƒ…æ³ä¸éœ€è¦æ”¹å‹•ï¼Œæ¨™é ­æª”åŒ…å«ç‰¹æ®ŠåŠŸèƒ½å¯„å­˜å™¨çš„å®šç¾©
+#include <reg52.h> // ¥]§t¼ĞÀYÀÉ¡A¤@¯ë±¡ªp¤£»İ­n§ï°Ê¡A¼ĞÀYÀÉ¥]§t¯S®í¥\¯à±H¦s¾¹ªº©w¸q
 #include "delay.h"
 #include "keyscan.h"
 
-#define KeyPort P1 // å®šç¾©éµç›¤åŸ 
+#define KeyPort P1 // ©w¸qÁä½L°ğ
 
-unsigned char KeyScan(void)  // éµç›¤æƒç„å‡½æ•¸ï¼Œä½¿ç”¨è¡Œåˆ—é€ç´šæƒç„æ³•
+unsigned char KeyScan(void)  // Áä½L±½ºË¨ç¼Æ¡A¨Ï¥Î¦æ¦C³v¯Å±½ºËªk
 {
     unsigned char Val;
-    KeyPort = 0xf0; // é«˜å››ä½ç½®é«˜ï¼Œä½å››ä½æ‹‰ä½
-    if (KeyPort != 0xf0) // è¡¨ç¤ºæœ‰æŒ‰éµæŒ‰ä¸‹
+    KeyPort = 0xf0; // °ª¥|¦ì¸m°ª¡A§C¥|¦ì©Ô§C
+    if (KeyPort != 0xf0) // ªí¥Ü¦³«öÁä«ö¤U
     {
-        DelayMs(10); // å»æŠ–
-        if (KeyPort != 0xf0) { // è¡¨ç¤ºæœ‰æŒ‰éµæŒ‰ä¸‹
-            KeyPort = 0xfe; // æª¢æ¸¬ç¬¬ä¸€è¡Œ
+        DelayMs(10); // ¥h§İ
+        if (KeyPort != 0xf0) { // ªí¥Ü¦³«öÁä«ö¤U
+            KeyPort = 0xfe; // ÀË´ú²Ä¤@¦æ
             if (KeyPort != 0xfe) {
                 Val = KeyPort & 0xf0;
                 Val += 0x0e;
                 while (KeyPort != 0xfe);
-                DelayMs(10); // å»æŠ–
+                DelayMs(10); // ¥h§İ
                 while (KeyPort != 0xfe);
                 return Val;
             }
-            KeyPort = 0xfd; // æª¢æ¸¬ç¬¬äºŒè¡Œ
+            KeyPort = 0xfd; // ÀË´ú²Ä¤G¦æ
             if (KeyPort != 0xfd) {
                 Val = KeyPort & 0xf0;
                 Val += 0x0d;
                 while (KeyPort != 0xfd);
-                DelayMs(10); // å»æŠ–
+                DelayMs(10); // ¥h§İ
                 while (KeyPort != 0xfd);
                 return Val;
             }
-            KeyPort = 0xfb; // æª¢æ¸¬ç¬¬ä¸‰è¡Œ
+            KeyPort = 0xfb; // ÀË´ú²Ä¤T¦æ
             if (KeyPort != 0xfb) {
                 Val = KeyPort & 0xf0;
                 Val += 0x0b;
                 while (KeyPort != 0xfb);
-                DelayMs(10); // å»æŠ–
+                DelayMs(10); // ¥h§İ
                 while (KeyPort != 0xfb);
                 return Val;
             }
-            KeyPort = 0xf7; // æª¢æ¸¬ç¬¬å››è¡Œ
+            KeyPort = 0xf7; // ÀË´ú²Ä¥|¦æ
             if (KeyPort != 0xf7) {
                 Val = KeyPort & 0xf0;
                 Val += 0x07;
                 while (KeyPort != 0xf7);
-                DelayMs(10); // å»æŠ–
+                DelayMs(10); // ¥h§İ
                 while (KeyPort != 0xf7);
                 return Val;
             }
@@ -55,7 +55,7 @@ unsigned char KeyScan(void)  // éµç›¤æƒç„å‡½æ•¸ï¼Œä½¿ç”¨è¡Œåˆ—é€ç´šæƒç„æ³•
 
 unsigned char KeyPro(void) {
     switch (KeyScan()) {
-    case 0x7e:return 0; break; // 0 æŒ‰ä¸‹ç›¸æ‡‰çš„éµé¡¯ç¤ºç›¸å°æ‡‰çš„ç¢¼å€¼
+    case 0x7e:return 0; break; // 0 «ö¤U¬ÛÀ³ªºÁäÅã¥Ü¬Û¹ïÀ³ªº½X­È
     case 0x7d:return 1; break; // 1
     case 0x7b:return 2; break; // 2
     case 0x77:return 3; break; // 3
@@ -66,11 +66,12 @@ unsigned char KeyPro(void) {
     case 0xde:return 8; break; // 8
     case 0xdd:return 9; break; // 9
     case 0xdb:return 10; break; // a
-    case 0xd7:return 11; break; // b
-    case 0xee:return 12; break; // c
-    case 0xed:return 13; break; // d
-    case 0xeb:return 14; break; // e
-    case 0xe7:return 15; break; // f
+    case 0xd7:return 11; break; // 
+    case 0xee:return 12; break; // 
+    case 0xed:return 13; break; // 
+    case 0xeb:return 14; break; // 
+    case 0xe7:return 15; break; // ·Ç³Æ
     default:return 0xff; break;
     }
 }
+

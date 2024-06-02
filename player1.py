@@ -1,5 +1,5 @@
-import xtools, utime
-from machine import RTC, UART, Pin, PWM
+import xtools, utime, urequests, ujson
+from machine import RTC, UART, Pin, PWM, Timer
 from umqtt.simple import MQTTClient
 import random
 
@@ -18,6 +18,7 @@ YOUR_TURN = 2
 OPPONENT_TURN = 3
 STOP = 4
 WAIT_NEXT = 5
+databaseURL = "https://embedded-system-final-default-rtdb.asia-southeast1.firebasedatabase.app"
 
 # MQTT 客戶端
 client = MQTTClient (
@@ -109,6 +110,68 @@ def check_guess(cnt, num):
             checker += 1
     return checker
 
+def player1WINDBUPD():
+    mes = databaseURL + "/player1.json"
+    res = urequests.get(mes)
+    r = res.text
+    res.close()
+    win = 1
+    lose = 0
+    if r != "null":
+        data = ujson.loads(r)
+        win += data["win"]
+        lose += data["lose"]
+    data = {"win": win, "lose": lose}
+    mes = databaseURL + "/player1.json"
+    res = urequests.put(mes, json=data)
+    res.close()
+
+    mes = databaseURL + "/player2.json"
+    res = urequests.get(mes)
+    r = res.text
+    res.close()
+    win = 0
+    lose = 1
+    if r != "null":
+        data = ujson.loads(r)
+        win += data["win"]
+        lose += data["lose"]
+    data = {"win": win, "lose": lose}
+    mes = databaseURL + "/player2.json"
+    res = urequests.put(mes, json=data)
+    res.close()
+
+def player1LoseDBUPD():
+    mes = databaseURL + "/player1.json"
+    res = urequests.get(mes)
+    r = res.text
+    res.close()
+    win = 0
+    lose = 1
+    if r != "null":
+        data = ujson.loads(r)
+        win += data["win"]
+        lose += data["lose"]
+    data = {"win": win, "lose": lose}
+    mes = databaseURL + "/player1.json"
+    res = urequests.put(mes, json=data)
+    res.close()
+
+    mes = databaseURL + "/player2.json"
+    res = urequests.get(mes)
+    r = res.text
+    res.close()
+    win = 1
+    lose = 0
+    if r != "null":
+        data = ujson.loads(r)
+        win += data["win"]
+        lose += data["lose"]
+    data = {"win": win, "lose": lose}
+    mes = databaseURL + "/player2.json"
+    res = urequests.put(mes, json=data)
+    res.close()
+
 def win():
     global mode, yourHP, opponentHP
     # client.publish(status_topic, b"PLAYER1 WINS")
@@ -118,6 +181,7 @@ def win():
     opponentHP -= 1
     if opponentHP == 0:
         gameEnd()
+        player1WINDBUPD()
     else:
         roundEnd()
 
@@ -130,6 +194,7 @@ def lose():
     yourHP -= 1
     if yourHP == 0:
         gameEnd()
+        player1LoseDBUPD()
     else:
         roundEnd()
 

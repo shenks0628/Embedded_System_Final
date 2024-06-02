@@ -18,7 +18,7 @@ YOUR_TURN = 2
 OPPONENT_TURN = 3
 STOP = 4
 WAIT_NEXT = 5
-databaseURL = "https://embedded-system-final-default-rtdb.asia-southeast1.firebasedatabase.app"
+DATABASE_URL = "https://embedded-system-final-default-rtdb.asia-southeast1.firebasedatabase.app"
 
 # MQTT 客戶端
 client = MQTTClient (
@@ -111,7 +111,7 @@ def check_guess(cnt, num):
     return checker
 
 def player1WINDBUPD():
-    mes = databaseURL + "/player1.json"
+    mes = DATABASE_URL + "/player1.json"
     res = urequests.get(mes)
     r = res.text
     res.close()
@@ -122,11 +122,11 @@ def player1WINDBUPD():
         win += data["win"]
         lose += data["lose"]
     data = {"win": win, "lose": lose}
-    mes = databaseURL + "/player1.json"
+    mes = DATABASE_URL + "/player1.json"
     res = urequests.put(mes, json=data)
     res.close()
 
-    mes = databaseURL + "/player2.json"
+    mes = DATABASE_URL + "/player2.json"
     res = urequests.get(mes)
     r = res.text
     res.close()
@@ -137,12 +137,12 @@ def player1WINDBUPD():
         win += data["win"]
         lose += data["lose"]
     data = {"win": win, "lose": lose}
-    mes = databaseURL + "/player2.json"
+    mes = DATABASE_URL + "/player2.json"
     res = urequests.put(mes, json=data)
     res.close()
 
 def player1LoseDBUPD():
-    mes = databaseURL + "/player1.json"
+    mes = DATABASE_URL + "/player1.json"
     res = urequests.get(mes)
     r = res.text
     res.close()
@@ -153,11 +153,11 @@ def player1LoseDBUPD():
         win += data["win"]
         lose += data["lose"]
     data = {"win": win, "lose": lose}
-    mes = databaseURL + "/player1.json"
+    mes = DATABASE_URL + "/player1.json"
     res = urequests.put(mes, json=data)
     res.close()
 
-    mes = databaseURL + "/player2.json"
+    mes = DATABASE_URL + "/player2.json"
     res = urequests.get(mes)
     r = res.text
     res.close()
@@ -168,7 +168,7 @@ def player1LoseDBUPD():
         win += data["win"]
         lose += data["lose"]
     data = {"win": win, "lose": lose}
-    mes = databaseURL + "/player2.json"
+    mes = DATABASE_URL + "/player2.json"
     res = urequests.put(mes, json=data)
     res.close()
 

@@ -1,4 +1,4 @@
-C51 COMPILER V7.08   KEYSCAN                                                               05/27/2024 15:07:28 PAGE 1   
+C51 COMPILER V7.08   KEYSCAN                                                               06/01/2024 15:56:52 PAGE 1   
 
 
 C51 COMPILER V7.08, COMPILATION OF MODULE KEYSCAN
@@ -7,54 +7,53 @@ COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE keyscan.c BROWSE DEBUG OBJECTEXTEND
 
 line level    source
 
-   1          #include <reg52.h> // åŒ…å«æ¨™é ­æª”ï¼Œä¸€èˆ¬æƒ…æ³ä¸éœ€è¦æ”¹å‹•ï¼Œæ¨™é ­æª”åŒ…å«ç‰¹æ®ŠåŠŸèƒ½å¯„å­˜å™¨
-             -çš„å®šç¾©
+   1          #include <reg52.h> // ¥]§t¼ĞÀYÀÉ¡A¤@¯ë±¡ªp¤£»İ­n§ï°Ê¡A¼ĞÀYÀÉ¥]§t¯S®í¥\¯à±H¦s¾¹ªº©w¸q
    2          #include "delay.h"
    3          #include "keyscan.h"
    4          
-   5          #define KeyPort P1 // å®šç¾©éµç›¤åŸ 
+   5          #define KeyPort P1 // ©w¸qÁä½L°ğ
    6          
-   7          unsigned char KeyScan(void)  // éµç›¤æƒç„å‡½æ•¸ï¼Œä½¿ç”¨è¡Œåˆ—é€ç´šæƒç„æ³•
+   7          unsigned char KeyScan(void)  // Áä½L±½ºË¨ç¼Æ¡A¨Ï¥Î¦æ¦C³v¯Å±½ºËªk
    8          {
    9   1          unsigned char Val;
-  10   1          KeyPort = 0xf0; // é«˜å››ä½ç½®é«˜ï¼Œä½å››ä½æ‹‰ä½
-  11   1          if (KeyPort != 0xf0) // è¡¨ç¤ºæœ‰æŒ‰éµæŒ‰ä¸‹
+  10   1          KeyPort = 0xf0; // °ª¥|¦ì¸m°ª¡A§C¥|¦ì©Ô§C
+  11   1          if (KeyPort != 0xf0) // ªí¥Ü¦³«öÁä«ö¤U
   12   1          {
-  13   2              DelayMs(10); // å»æŠ–
-  14   2              if (KeyPort != 0xf0) { // è¡¨ç¤ºæœ‰æŒ‰éµæŒ‰ä¸‹
-  15   3                  KeyPort = 0xfe; // æª¢æ¸¬ç¬¬ä¸€è¡Œ
+  13   2              DelayMs(10); // ¥h§İ
+  14   2              if (KeyPort != 0xf0) { // ªí¥Ü¦³«öÁä«ö¤U
+  15   3                  KeyPort = 0xfe; // ÀË´ú²Ä¤@¦æ
   16   3                  if (KeyPort != 0xfe) {
   17   4                      Val = KeyPort & 0xf0;
   18   4                      Val += 0x0e;
   19   4                      while (KeyPort != 0xfe);
-  20   4                      DelayMs(10); // å»æŠ–
+  20   4                      DelayMs(10); // ¥h§İ
   21   4                      while (KeyPort != 0xfe);
   22   4                      return Val;
   23   4                  }
-  24   3                  KeyPort = 0xfd; // æª¢æ¸¬ç¬¬äºŒè¡Œ
+  24   3                  KeyPort = 0xfd; // ÀË´ú²Ä¤G¦æ
   25   3                  if (KeyPort != 0xfd) {
   26   4                      Val = KeyPort & 0xf0;
   27   4                      Val += 0x0d;
   28   4                      while (KeyPort != 0xfd);
-  29   4                      DelayMs(10); // å»æŠ–
+  29   4                      DelayMs(10); // ¥h§İ
   30   4                      while (KeyPort != 0xfd);
   31   4                      return Val;
   32   4                  }
-  33   3                  KeyPort = 0xfb; // æª¢æ¸¬ç¬¬ä¸‰è¡Œ
+  33   3                  KeyPort = 0xfb; // ÀË´ú²Ä¤T¦æ
   34   3                  if (KeyPort != 0xfb) {
   35   4                      Val = KeyPort & 0xf0;
   36   4                      Val += 0x0b;
   37   4                      while (KeyPort != 0xfb);
-  38   4                      DelayMs(10); // å»æŠ–
+  38   4                      DelayMs(10); // ¥h§İ
   39   4                      while (KeyPort != 0xfb);
   40   4                      return Val;
   41   4                  }
-  42   3                  KeyPort = 0xf7; // æª¢æ¸¬ç¬¬å››è¡Œ
+  42   3                  KeyPort = 0xf7; // ÀË´ú²Ä¥|¦æ
   43   3                  if (KeyPort != 0xf7) {
   44   4                      Val = KeyPort & 0xf0;
   45   4                      Val += 0x07;
   46   4                      while (KeyPort != 0xf7);
-  47   4                      DelayMs(10); // å»æŠ–
+  47   4                      DelayMs(10); // ¥h§İ
   48   4                      while (KeyPort != 0xf7);
   49   4                      return Val;
   50   4                  }
@@ -62,12 +61,12 @@ line level    source
   52   2          }
   53   1          return 0xff;
   54   1      }
-C51 COMPILER V7.08   KEYSCAN                                                               05/27/2024 15:07:28 PAGE 2   
-
   55          
+C51 COMPILER V7.08   KEYSCAN                                                               06/01/2024 15:56:52 PAGE 2   
+
   56          unsigned char KeyPro(void) {
   57   1          switch (KeyScan()) {
-  58   2          case 0x7e:return 0; break; // 0 æŒ‰ä¸‹ç›¸æ‡‰çš„éµé¡¯ç¤ºç›¸å°æ‡‰çš„ç¢¼å€¼
+  58   2          case 0x7e:return 0; break; // 0 «ö¤U¬ÛÀ³ªºÁäÅã¥Ü¬Û¹ïÀ³ªº½X­È
   59   2          case 0x7d:return 1; break; // 1
   60   2          case 0x7b:return 2; break; // 2
   61   2          case 0x77:return 3; break; // 3
@@ -78,14 +77,15 @@ line level    source
   66   2          case 0xde:return 8; break; // 8
   67   2          case 0xdd:return 9; break; // 9
   68   2          case 0xdb:return 10; break; // a
-  69   2          case 0xd7:return 11; break; // b
-  70   2          case 0xee:return 12; break; // c
-  71   2          case 0xed:return 13; break; // d
-  72   2          case 0xeb:return 14; break; // e
-  73   2          case 0xe7:return 15; break; // f
+  69   2          case 0xd7:return 11; break; // 
+  70   2          case 0xee:return 12; break; // 
+  71   2          case 0xed:return 13; break; // 
+  72   2          case 0xeb:return 14; break; // 
+  73   2          case 0xe7:return 15; break; // ·Ç³Æ
   74   2          default:return 0xff; break;
   75   2          }
   76   1      }
+  77          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE

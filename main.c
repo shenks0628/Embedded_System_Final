@@ -1,4 +1,4 @@
-#include <reg52.h> //¥]§t¼ĞÀYÀÉ¡A¤@¯ë±¡ªp¤£»İ­n§ï°Ê¡A¼ĞÀYÀÉ¥]§t¯S®í¥\¯à±H¦s¾¹ªº©w¸q 
+#include <reg52.h> //åŒ…å«æ¨™é ­æª”
 #include <stdlib.h>
 #include <string.h>
 #include "uart.h"
@@ -7,20 +7,19 @@
 typedef unsigned char byte;
 typedef unsigned int  word;
 
-#define DataPort P0 //©w¸q¸ê®Æ°ğ 
-#define	KeyPort	P1	//©w¸qÁä½L°ğ
+#define DataPort P0 //å®šç¾©è³‡æ–™åŸ  
+#define	KeyPort	P1	//å®šç¾©éµç›¤åŸ 
 sbit k1 = P3 ^ 0;
 sbit k2 = P3 ^ 1;
-sbit SPK = P3 ^ 5;  //©w¸q­µ¼Ö¿é¥X°ğ
-sbit LATCH1 = P3 ^ 7;	//©w¸qÂê¦s¨Ï¯à°ğ ¬qÂê¦s
-sbit LATCH2 = P3 ^ 6;	//               ¦ìÂê¦s
+sbit LATCH1 = P3 ^ 7;	//å®šç¾©é–å­˜ä½¿èƒ½åŸ  æ®µé–å­˜
+sbit LATCH2 = P3 ^ 6;	//              ä½é–å­˜
 
 unsigned char code dofly_DuanMa[] = { 0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,
-                                     0x77,0x7c,0x39,0x5e,0x79,0x71 };      // ¬q½X0~F
-unsigned char code dofly_WeiMa[] = { 0xfe,0xfd,0xfb,0xf7,0xef,0xdf,0xbf,0x7f };//¦ì½X
-byte TempData[10];
+									  0x77,0x7c,0x39,0x5e,0x79,0x71 };      // æ®µç¢¼0~F
+unsigned char code dofly_WeiMa[] = { 0xfe,0xfd,0xfb,0xf7,0xef,0xdf,0xbf,0x7f };//ä½ç¢¼
+byte TempData[8];
 word mynum[4];
-bit catchable=0;
+bit catchable = 0;
 
 // state
 #define WAIT 0
@@ -29,121 +28,228 @@ bit catchable=0;
 #define END 3
 
 /*------------------------------------------------
-                    ­p®É¾¹ªì©l¤Æ°Æµ{¦¡
+				è¨ˆæ™‚å™¨åˆå§‹åŒ–å‰¯ç¨‹å¼
 ------------------------------------------------*/
 void Init_Timer0(void) {
-    TMOD |= 0x01;//¨Ï¥Î¼Ò¦¡1¡A16¦ì¤¸­p®É¾¹¡A¨Ï¥Î"|"²Å¸¹¥i¥H¦b¨Ï¥Î¦h­Ó­p®É¾¹®É¤£¨ü¼vÅT
-    EA = 1;      //Á`¤¤Â_¥´¶}
-    ET0 = 1;     //­p®É¾¹¤¤Â_¥´¶}
-    TR0 = 1;     //­p®É¾¹¶}Ãö¥´¶}
+	TMOD |= 0x01;//ä½¿ç”¨æ¨¡å¼1ï¼Œ16ä½å…ƒè¨ˆæ™‚å™¨ï¼Œä½¿ç”¨"|"ç¬¦è™Ÿå¯ä»¥åœ¨ä½¿ç”¨å¤šå€‹è¨ˆæ™‚å™¨æ™‚ä¸å—å½±éŸ¿
+	EA = 1;      //ç¸½ä¸­æ–·æ‰“é–‹
+	ET0 = 1;     //è¨ˆæ™‚å™¨ä¸­æ–·æ‰“é–‹
+	TR0 = 1;     //è¨ˆæ™‚å™¨é–‹é—œæ‰“é–‹
 }
 /*------------------------------------------------
- Åã¥Ü¨ç¼Æ¡A¥Î©ó°ÊºA±½ºË¼Æ½XºŞ
+			é¡¯ç¤ºå‡½æ•¸ï¼Œç”¨æ–¼å‹•æ…‹æƒç„æ•¸ç¢¼ç®¡
 ------------------------------------------------*/
 void Display(unsigned char FirstBit, unsigned char Num) {
-    static unsigned char i = 0;
+	static unsigned char i = 0;
 
-    DataPort = 0;   //²MªÅ¸ê®Æ¡A¨¾¤î¦³¥æ´À­«¼v
-    LATCH1 = 1;     //¬qÂê¦s
-    LATCH1 = 0;
+	DataPort = 0;   //æ¸…ç©ºè³‡æ–™ï¼Œé˜²æ­¢æœ‰äº¤æ›¿é‡å½±
+	LATCH1 = 1;     //æ®µé–å­˜
+	LATCH1 = 0;
 
-    DataPort = dofly_WeiMa[i + FirstBit]; //¨ú¦ì½X 
-    LATCH2 = 1;     //¦ìÂê¦s
-    LATCH2 = 0;
+	DataPort = dofly_WeiMa[i + FirstBit]; //å–ä½ç¢¼ 
+	LATCH2 = 1;     //ä½é–å­˜
+	LATCH2 = 0;
 
-    DataPort = TempData[i]; //¨úÅã¥Ü¸ê®Æ¡A¬q½X
-    LATCH1 = 1;     //¬qÂê¦s
-    LATCH1 = 0;
+	DataPort = TempData[i]; //å–é¡¯ç¤ºè³‡æ–™ï¼Œæ®µç¢¼
+	LATCH1 = 1;     //æ®µé–å­˜
+	LATCH1 = 0;
 
-    i++;
-    if (i == Num)
-        i = 0;
+	i++;
+	if (i == Num)
+		i = 0;
 }
 /*------------------------------------------------
-                 ­p®É¾¹¤¤Â_°Æµ{¦¡
+				 è¨ˆæ™‚å™¨ä¸­æ–·å‰¯ç¨‹å¼
 ------------------------------------------------*/
 void Timer0_isr(void) interrupt 1
 {
-    TH0 = (65536 - 2000) / 256;		  //­«·s½á­È 2ms
-    TL0 = (65536 - 2000) % 256;
-    Display(0, 8);       // ½Õ¥Î¼Æ½XºŞ±½ºË
-    TF1 = 0;
+	TH0 = (65536 - 2000) / 256;		  //é‡æ–°è³¦å€¼ 2ms
+	TL0 = (65536 - 2000) % 256;
+	Display(0, 8);       // èª¿ç”¨æ•¸ç¢¼ç®¡æƒç„
+	TF1 = 0;
 }
-char* itos(word x){
-	if(x==10)return 'A';
-	else return x+'0';
+char* itos(word x) {
+	if (x == 10) return 'A';
+	else return x + '0';
 }
+int stoi(char x) {
+	if (x == 'A') return 10;
+	else return x - '0';
+}
+
+byte wait_input(word x) {//ç­‰å¾…è¼¸å…¥
+	byte key;
+	key = KeyPro();
+	while (key == 0xff) {
+		TempData[x] = TempData[x] ^ 0x80;
+		key = KeyPro();
+		DelayMs(10);
+	}
+	TempData[x] = TempData[x] & 0x7f;
+	return key;
+}
+void clearData() {//æ¸…å±
+	word i;
+	for (i = 0;i < 8;i++) TempData[i] = 0;
+}
+void switch_show() {
+	word i;
+	byte key, temp[8];
+	for (i = 0;i < 8;i++) temp[i] = TempData[i]; //å„²å­˜
+	clearData();//æ¸…å±
+	TempData[0] = dofly_DuanMa[mynum[0]];
+	TempData[1] = dofly_DuanMa[mynum[1]];
+	TempData[2] = dofly_DuanMa[mynum[2]];
+	TempData[3] = dofly_DuanMa[mynum[3]];
+	key = wait_input(7);
+	while (key != 12) key = wait_input(7);
+	for (i = 0;i < 8;i++) TempData[i] = temp[i]; //é‚„åŸ
+}
+
 void main(void) {
-    word i, j;
 	word state;
 	byte key;
-	word guess_cnt=0, guess_num=0;
-    InitUART();
-    Init_Timer0();
-    ES = 1;                  //¥´¶}¦ê¤f¤¤Â_
-    while (1) {
-		key = KeyPro();
-        if (rec_flag == 1) {// ¦³UART¿é¤J
-            for (i = 0;i < 8;j++) TempData[i] = 0; //²M«Ì
-            buf[head] = '\0';
-			if(buf[0]=='W'){// ²q¹ï
-				//Åã¥ÜTrue
-				state=PREPARE;
-			}
-			else if(buf[0]=='L'){// ²q¿ù
-				//Åã¥ÜFalse
-				state=PREPARE;
-			}
-			else if(buf[0]=='G'){// ¨C½üµ²§ô
-				//Åã¥Üµ²ªG
-				state=END;
-			}
-			else if(buf[0]>='0' && buf[0]<='6'){//±o¨ì§Úªº¼Æ¦r
-				//Åã¥Ü§Úªº¼Æ¦r
-				state=WAIT;
-			}
-			else if(buf[0]=='T'){// ½ü¨ì§Ú²q
-				//Åã¥Üguess
-				state=GUESS;
-			}
-			else if(buf[0]=='O'){// ±µ¦¬¹ï¤è²q
-				catchable=1;
-				state=GUESS;
-			}
-            rec_flag = 0;
-            head = 0;
-        }
-		if(key!=0xff){// ¦³Áä½L¿é¤J
-			if(state==GUESS){// ²q´ú
-				if(key>=1 && key<=10){
-					while(key!=15){
-						if(key>=1 && key<=10) guess_cnt = key;
-						key = KeyPro();
-						while(key==0xff)key = KeyPro();
-					}
-					key = KeyPro();
-					while(~(key>=1 && key<=6))key = KeyPro();
-					while(key!=15){
-						if(key>=1 && key<=6) guess_num = key;
-						key = KeyPro();
-						while(key==0xff)key = KeyPro();
-					}
-					UART_SendStr(strcat(itos(guess_cnt),itos(guess_num)));//¶Ç°e²q´ú
-					state=WAIT;
+	word guess_cnt = 0, guess_num = 0;
+	InitUART();
+	Init_Timer0();
+	ES = 1;// æ‰“é–‹ä¸²å£ä¸­æ–·
+	state = PREPARE;
+	while (1) {
+		if (state == WAIT) {// ç­‰å¾…UARTè¼¸å…¥
+			clearData();//æ¸…å±
+			// é¡¯ç¤ºLOAd
+			TempData[0] = 0x38;
+			TempData[1] = 0x3f;
+			TempData[2] = 0x77;
+			TempData[3] = 0x5e;
+			TempData[4] = 0x80;
+			TempData[5] = 0x80;
+			TempData[6] = 0x80;
+			if (rec_flag == 1) {// UARTè¼¸å…¥
+				clearData();//æ¸…å±
+				buf[head] = '\0';
+				if (buf[0] == 'W') {// çŒœå°
+					// é¡¯ç¤ºTrUE
+					TempData[0] = 0x78;
+					TempData[1] = 0x50;
+					TempData[2] = 0x3e;
+					TempData[3] = 0x79;
+					state = PREPARE;
 				}
-				else if(key==15 && catchable){// §ì
-					UART_SendStr("STOP");
-					catchable = 0;
-					state=WAIT;
+				else if (buf[0] == 'L') {// çŒœéŒ¯
+					// é¡¯ç¤ºFALSE
+					TempData[0] = 0x71;
+					TempData[1] = 0x77;
+					TempData[2] = 0x38;
+					TempData[3] = 0x6e;
+					TempData[4] = 0x79;
+					state = PREPARE;
 				}
-			}
-			else if(state==PREPARE){
-				if(key==15){
-					UART_SendStr("READY");//·Ç³Æ§¹¦¨
-					state=WAIT;
+				else if (buf[0] == 'G') {// æ¯è¼ªçµæŸ
+					// é¡¯ç¤ºEnd  X-Y
+					// myLife = stoi(buf[5]);
+					// oppoLiife = stoi(buf[6]);
+					TempData[0] = 0x79;
+					TempData[1] = 0x54;
+					TempData[2] = 0x5e;
+					TempData[5] = dofly_DuanMa[stoi(buf[5])];
+					TempData[6] = 0x40;
+					TempData[7] = dofly_DuanMa[stoi(buf[6])];
+					if (stoi(buf[5]) <= 0 || stoi(buf[6]) <= 0)state = END;
+					else state = PREPARE;
 				}
+				else if (buf[0] >= '0' && buf[0] <= '6') {// å¾—åˆ°æˆ‘çš„æ•¸å­—
+					// é¡¯ç¤ºæˆ‘çš„æ•¸å­—
+					mynum[0] = stoi(buf[0]);
+					mynum[1] = stoi(buf[1]);
+					mynum[2] = stoi(buf[2]);
+					mynum[3] = stoi(buf[3]);
+					TempData[0] = dofly_DuanMa[mynum[0]];
+					TempData[1] = dofly_DuanMa[mynum[1]];
+					TempData[2] = dofly_DuanMa[mynum[2]];
+					TempData[3] = dofly_DuanMa[mynum[3]];
+					state = PREPARE;
+				}
+				else if (buf[0] == 'T') {// è¼ªåˆ°æˆ‘çŒœ
+					// é¡¯ç¤ºGUESS 
+					TempData[0] = 0x6f;
+					TempData[1] = 0x3e;
+					TempData[2] = 0x79;
+					TempData[3] = 0x6e;
+					TempData[4] = 0x6e;
+					state = GUESS;
+				}
+				else if (buf[0] == 'O') {// æ¥æ”¶å°æ–¹çŒœã€ŒXå€‹Yã€
+					// é¡¯ç¤ºOPPO X Y
+					TempData[0] = 0x3f;
+					TempData[1] = 0x73;
+					TempData[2] = 0x73;
+					TempData[3] = 0x3f;
+					TempData[5] = dofly_DuanMa[stoi(buf[5])];
+					TempData[7] = dofly_DuanMa[stoi(buf[6])];
+					key = wait_input(7);
+					while (key != 15) key = wait_input(7);
+					clearData();//æ¸…å±
+					// é¡¯ç¤ºGUESS 
+					TempData[0] = 0x6f;
+					TempData[1] = 0x3e;
+					TempData[2] = 0x79;
+					TempData[3] = 0x6e;
+					TempData[4] = 0x6e;
+					catchable = 1;
+					state = GUESS;
+				}
+				rec_flag = 0;
+				head = 0;
 			}
 		}
-		if(state==END)break;
-    }
+		else if (state == GUESS) {// çŒœæ¸¬éšæ®µ
+			key = KeyPro();
+			if (key >= 1 && key <= 10) {
+				while (key != 15) {
+					if (key >= 1 && key <= 10) guess_cnt = key;
+					else if (key == 12) switch_show();
+					TempData[5] = dofly_DuanMa[guess_cnt];
+					key = KeyPro();
+					while (key == 0xff) key = wait_input(5);
+				}
+				TempData[6] = 0x40;
+				key = KeyPro();
+				while (~(key >= 1 && key <= 6)) {
+					key = KeyPro();
+					if (key == 12) switch_show();
+				}
+				while (key != 15) {
+					if (key >= 1 && key <= 6) guess_num = key;
+					else if (key == 12) switch_show();
+					TempData[7] = dofly_DuanMa[guess_num];
+					key = wait_input(7);
+					while (key == 0xff) key = wait_input(7);
+				}
+				UART_SendStr(strcat(itos(guess_cnt), itos(guess_num)));// å‚³é€çŒœæ¸¬
+				state = WAIT;
+			}
+			else if (key == 15 && catchable) {// æŠ“
+				UART_SendStr("STOP");
+				catchable = 0;
+				state = WAIT;
+			}
+			else if (key == 12) switch_show();
+		}
+		else if (state == PREPARE) {
+			key = wait_input(7);
+			while (key != 15) key = wait_input(7);
+			UART_SendStr("READY");// æº–å‚™å®Œæˆ
+			state = WAIT;
+		}
+		else if (state == END) {
+			key = wait_input(7);
+			while (~(key == 15 || key == 14)) key = wait_input(7);
+			if (key == 14) break;
+			else {
+				clearData();// æ¸…å±
+				state = PREPARE;
+			}
+		}
+	}
 }

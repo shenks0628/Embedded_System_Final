@@ -1,4 +1,4 @@
-C51 COMPILER V7.08   UART                                                                  06/03/2024 22:53:06 PAGE 1   
+C51 COMPILER V7.08   UART                                                                  06/03/2024 23:12:14 PAGE 1   
 
 
 C51 COMPILER V7.08, COMPILATION OF MODULE UART
@@ -62,7 +62,7 @@ line level    source
   53   2              if (get_0d == 0) {
   54   3                  if (tmp == 0x0d) get_0d = 1;
   55   3                  else {
-C51 COMPILER V7.08   UART                                                                  06/03/2024 22:53:06 PAGE 2   
+C51 COMPILER V7.08   UART                                                                  06/03/2024 23:12:14 PAGE 2   
 
   56   4                      buf[head] = tmp;
   57   4                      head++;

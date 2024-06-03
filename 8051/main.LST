@@ -1,4 +1,4 @@
-C51 COMPILER V7.08   MAIN                                                                  06/03/2024 22:53:05 PAGE 1   
+C51 COMPILER V7.08   MAIN                                                                  06/03/2024 23:12:14 PAGE 1   
 
 
 C51 COMPILER V7.08, COMPILATION OF MODULE MAIN
@@ -20,104 +20,104 @@ line level    source
   11          #define KeyPort P1      //定義鍵盤埠
   12          sbit k1 = P3 ^ 0;
   13          sbit k2 = P3 ^ 1;
-  14          sbit SPK = P3 ^ 5;  //定義音樂輸出埠
-  15          sbit LATCH1 = P3 ^ 7;   //定義鎖存使能埠 段鎖存
-  16          sbit LATCH2 = P3 ^ 6;   //              位鎖存
-  17          
-  18          unsigned char code dofly_DuanMa[] = { 0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,
-  19                                                                                   0x77,0x7c,0x39,0x5e,0x79,0x71 };      // 段碼0~F
-  20          unsigned char code dofly_WeiMa[] = { 0xfe,0xfd,0xfb,0xf7,0xef,0xdf,0xbf,0x7f };//位碼
-  21          byte TempData[8];
-  22          word mynum[4];
-  23          bit catchable = 0;
-  24          
-  25          // state
-  26          #define WAIT 0
-  27          #define PREPARE 1
-  28          #define GUESS 2
-  29          #define END 3
-  30          
-  31          /*------------------------------------------------
-  32                                          計時器初始化副程式
-  33          ------------------------------------------------*/
-  34          void Init_Timer0(void) {
-  35   1              TMOD |= 0x01;//使用模式1，16位元計時器，使用"|"符號可以在使用多個計時器時不受
+  14          sbit LATCH1 = P3 ^ 7;   //定義鎖存使能埠 段鎖存
+  15          sbit LATCH2 = P3 ^ 6;   //              位鎖存
+  16          
+  17          unsigned char code dofly_DuanMa[] = { 0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,
+  18                                                                                    0x77,0x7c,0x39,0x5e,0x79,0x71 };      // 段碼0~F
+  19          unsigned char code dofly_WeiMa[] = { 0xfe,0xfd,0xfb,0xf7,0xef,0xdf,0xbf,0x7f };//位碼
+  20          byte TempData[8];
+  21          word mynum[4];
+  22          bit catchable = 0;
+  23          
+  24          // state
+  25          #define WAIT 0
+  26          #define PREPARE 1
+  27          #define GUESS 2
+  28          #define END 3
+  29          
+  30          /*------------------------------------------------
+  31                                          計時器初始化副程式
+  32          ------------------------------------------------*/
+  33          void Init_Timer0(void) {
+  34   1              TMOD |= 0x01;//使用模式1，16位元計時器，使用"|"符號可以在使用多個計時器時不受
              -影響
-  36   1              EA = 1;      //總中斷打開
-  37   1              ET0 = 1;     //計時器中斷打開
-  38   1              TR0 = 1;     //計時器開關打開
-  39   1      }
-  40          /*------------------------------------------------
-  41                                  顯示函數，用於動態掃瞄數碼管
-  42          ------------------------------------------------*/
-  43          void Display(unsigned char FirstBit, unsigned char Num) {
-  44   1              static unsigned char i = 0;
-  45   1      
-  46   1              DataPort = 0;   //清空資料，防止有交替重影
-  47   1              LATCH1 = 1;     //段鎖存
-  48   1              LATCH1 = 0;
-  49   1      
-  50   1              DataPort = dofly_WeiMa[i + FirstBit]; //取位碼 
-  51   1              LATCH2 = 1;     //位鎖存
-  52   1              LATCH2 = 0;
-  53   1      
-  54   1              DataPort = TempData[i]; //取顯示資料，段碼
-C51 COMPILER V7.08   MAIN                                                                  06/03/2024 22:53:05 PAGE 2   
+  35   1              EA = 1;      //總中斷打開
+  36   1              ET0 = 1;     //計時器中斷打開
+  37   1              TR0 = 1;     //計時器開關打開
+  38   1      }
+  39          /*------------------------------------------------
+  40                                  顯示函數，用於動態掃瞄數碼管
+  41          ------------------------------------------------*/
+  42          void Display(unsigned char FirstBit, unsigned char Num) {
+  43   1              static unsigned char i = 0;
+  44   1      
+  45   1              DataPort = 0;   //清空資料，防止有交替重影
+  46   1              LATCH1 = 1;     //段鎖存
+  47   1              LATCH1 = 0;
+  48   1      
+  49   1              DataPort = dofly_WeiMa[i + FirstBit]; //取位碼 
+  50   1              LATCH2 = 1;     //位鎖存
+  51   1              LATCH2 = 0;
+  52   1      
+  53   1              DataPort = TempData[i]; //取顯示資料，段碼
+  54   1              LATCH1 = 1;     //段鎖存
+C51 COMPILER V7.08   MAIN                                                                  06/03/2024 23:12:14 PAGE 2   
 
-  55   1              LATCH1 = 1;     //段鎖存
-  56   1              LATCH1 = 0;
-  57   1      
-  58   1              i++;
-  59   1              if (i == Num)
-  60   1                      i = 0;
-  61   1      }
-  62          /*------------------------------------------------
-  63                                           計時器中斷副程式
-  64          ------------------------------------------------*/
-  65          void Timer0_isr(void) interrupt 1
-  66          {
-  67   1              TH0 = (65536 - 2000) / 256;               //重新賦值 2ms
-  68   1              TL0 = (65536 - 2000) % 256;
-  69   1              Display(0, 8);       // 調用數碼管掃瞄
-  70   1              TF1 = 0;
-  71   1      }
-  72          char* itos(word x) {
-  73   1              if (x == 10) return 'A';
-  74   1              else return x + '0';
-  75   1      }
-  76          int stoi(char x) {
-  77   1              if (x == 'A') return 10;
-  78   1              else return x - '0';
-  79   1      }
-  80          
-  81          byte wait_input(word x) {//等待輸入
-  82   1              byte key;
-  83   1              key = KeyPro();
-  84   1              while (key == 0xff) {
-  85   2                      TempData[x] = TempData[x] ^ 0x80;
-  86   2                      key = KeyPro();
-  87   2                      DelayMs(10);
-  88   2              }
-  89   1              TempData[x] = TempData[x] & 0x7f;
-  90   1              return key;
-  91   1      }
-  92          void clearData() {//清屏
-  93   1              word i;
-  94   1              for (i = 0;i < 8;i++) TempData[i] = 0;
-  95   1      }
-  96          void switch_show() {
-  97   1              word i;
-  98   1              byte key, temp[8];
-  99   1              for (i = 0;i < 8;i++) temp[i] = TempData[i]; //儲存
- 100   1              clearData();//清屏
- 101   1              TempData[0] = dofly_DuanMa[mynum[0]];
- 102   1              TempData[1] = dofly_DuanMa[mynum[1]];
- 103   1              TempData[2] = dofly_DuanMa[mynum[2]];
- 104   1              TempData[3] = dofly_DuanMa[mynum[3]];
- 105   1              key = wait_input(7);
- 106   1              while (key != 12) key = wait_input(7);
- 107   1              for (i = 0;i < 8;i++) TempData[i] = temp[i]; //還原
- 108   1      }
+  55   1              LATCH1 = 0;
+  56   1      
+  57   1              i++;
+  58   1              if (i == Num)
+  59   1                      i = 0;
+  60   1      }
+  61          /*------------------------------------------------
+  62                                           計時器中斷副程式
+  63          ------------------------------------------------*/
+  64          void Timer0_isr(void) interrupt 1
+  65          {
+  66   1              TH0 = (65536 - 2000) / 256;               //重新賦值 2ms
+  67   1              TL0 = (65536 - 2000) % 256;
+  68   1              Display(0, 8);       // 調用數碼管掃瞄
+  69   1              TF1 = 0;
+  70   1      }
+  71          char* itos(word x) {
+  72   1              if (x == 10) return 'A';
+  73   1              else return x + '0';
+  74   1      }
+  75          int stoi(char x) {
+  76   1              if (x == 'A') return 10;
+  77   1              else return x - '0';
+  78   1      }
+  79          
+  80          byte wait_input(word x) {//等待輸入
+  81   1              byte key;
+  82   1              key = KeyPro();
+  83   1              while (key == 0xff) {
+  84   2                      TempData[x] = TempData[x] ^ 0x80;
+  85   2                      key = KeyPro();
+  86   2                      DelayMs(10);
+  87   2              }
+  88   1              TempData[x] = TempData[x] & 0x7f;
+  89   1              return key;
+  90   1      }
+  91          void clearData() {//清屏
+  92   1              word i;
+  93   1              for (i = 0;i < 8;i++) TempData[i] = 0;
+  94   1      }
+  95          void switch_show() {
+  96   1              word i;
+  97   1              byte key, temp[8];
+  98   1              for (i = 0;i < 8;i++) temp[i] = TempData[i]; //儲存
+  99   1              clearData();//清屏
+ 100   1              TempData[0] = dofly_DuanMa[mynum[0]];
+ 101   1              TempData[1] = dofly_DuanMa[mynum[1]];
+ 102   1              TempData[2] = dofly_DuanMa[mynum[2]];
+ 103   1              TempData[3] = dofly_DuanMa[mynum[3]];
+ 104   1              key = wait_input(7);
+ 105   1              while (key != 12) key = wait_input(7);
+ 106   1              for (i = 0;i < 8;i++) TempData[i] = temp[i]; //還原
+ 107   1      }
+ 108          
  109          void main(void) {
  110   1              word state;
  111   1              byte key;
@@ -126,7 +126,7 @@ line level    source
  114   1              Init_Timer0();
  115   1              ES = 1;// 打開串口中斷
  116   1              state = PREPARE;
-C51 COMPILER V7.08   MAIN                                                                  06/03/2024 22:53:05 PAGE 3   
+C51 COMPILER V7.08   MAIN                                                                  06/03/2024 23:12:14 PAGE 3   
 
  117   1              while (1) {
  118   2                      if (state == WAIT) {// 等待UART輸入
@@ -190,7 +190,7 @@ line level    source
  176   5                                              TempData[1] = 0x3e;
  177   5                                              TempData[2] = 0x79;
  178   5                                              TempData[3] = 0x6e;
-C51 COMPILER V7.08   MAIN                                                                  06/03/2024 22:53:05 PAGE 4   
+C51 COMPILER V7.08   MAIN                                                                  06/03/2024 23:12:14 PAGE 4   
 
  179   5                                              TempData[4] = 0x6e;
  180   5                                              state = GUESS;
@@ -254,7 +254,7 @@ line level    source
  238   3                      }
  239   2                      else if (state == PREPARE) {
  240   3                              key = wait_input(7);
-C51 COMPILER V7.08   MAIN                                                                  06/03/2024 22:53:05 PAGE 5   
+C51 COMPILER V7.08   MAIN                                                                  06/03/2024 23:12:14 PAGE 5   
 
  241   3                              while (key != 15) key = wait_input(7);
  242   3                              UART_SendStr("READY");// 準備完成

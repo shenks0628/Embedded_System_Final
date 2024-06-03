@@ -1,4 +1,4 @@
-C51 COMPILER V7.08   MAIN                                                                  06/01/2024 16:43:14 PAGE 1   
+C51 COMPILER V7.08   MAIN                                                                  06/03/2024 22:53:05 PAGE 1   
 
 
 C51 COMPILER V7.08, COMPILATION OF MODULE MAIN
@@ -7,7 +7,7 @@ COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE main.c BROWSE DEBUG OBJECTEXTEND
 
 line level    source
 
-   1          #include <reg52.h> //¥]§t¼ĞÀYÀÉ¡A¤@¯ë±¡ªp¤£»İ­n§ï°Ê¡A¼ĞÀYÀÉ¥]§t¯S®í¥\¯à±H¦s¾¹ªº©w¸q 
+   1          #include <reg52.h> //åŒ…å«æ¨™é ­æª”
    2          #include <stdlib.h>
    3          #include <string.h>
    4          #include "uart.h"
@@ -16,160 +16,269 @@ line level    source
    7          typedef unsigned char byte;
    8          typedef unsigned int  word;
    9          
-  10          #define DataPort P0 //©w¸q¸ê®Æ°ğ 
-  11          #define KeyPort P1      //©w¸qÁä½L°ğ
-  12          sbit k1 = P2 ^ 0;
-  13          sbit k2 = P2 ^ 1;
-  14          sbit SPK = P2 ^ 2;  //©w¸q­µ¼Ö¿é¥X°ğ
-  15          sbit LATCH1 = P2 ^ 7;   //©w¸qÂê¦s¨Ï¯à°ğ ¬qÂê¦s
-  16          sbit LATCH2 = P2 ^ 6;   //               ¦ìÂê¦s
+  10          #define DataPort P0 //å®šç¾©è³‡æ–™åŸ  
+  11          #define KeyPort P1      //å®šç¾©éµç›¤åŸ 
+  12          sbit k1 = P3 ^ 0;
+  13          sbit k2 = P3 ^ 1;
+  14          sbit SPK = P3 ^ 5;  //å®šç¾©éŸ³æ¨‚è¼¸å‡ºåŸ 
+  15          sbit LATCH1 = P3 ^ 7;   //å®šç¾©é–å­˜ä½¿èƒ½åŸ  æ®µé–å­˜
+  16          sbit LATCH2 = P3 ^ 6;   //              ä½é–å­˜
   17          
   18          unsigned char code dofly_DuanMa[] = { 0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f,
-  19                                               0x77,0x7c,0x39,0x5e,0x79,0x71 };      // ¬q½X0~F
-  20          unsigned char code dofly_WeiMa[] = { 0xfe,0xfd,0xfb,0xf7,0xef,0xdf,0xbf,0x7f };//¦ì½X
-  21          byte TempData[10];
+  19                                                                                   0x77,0x7c,0x39,0x5e,0x79,0x71 };      // æ®µç¢¼0~F
+  20          unsigned char code dofly_WeiMa[] = { 0xfe,0xfd,0xfb,0xf7,0xef,0xdf,0xbf,0x7f };//ä½ç¢¼
+  21          byte TempData[8];
   22          word mynum[4];
-  23          bit catchable=0;
+  23          bit catchable = 0;
   24          
   25          // state
   26          #define WAIT 0
   27          #define PREPARE 1
   28          #define GUESS 2
-  29          #define END 4
+  29          #define END 3
   30          
-  31          
-  32          
-  33          /*------------------------------------------------
-  34                              ­p®É¾¹ªì©l¤Æ°Æµ{¦¡
-  35          ------------------------------------------------*/
-  36          void Init_Timer0(void) {
-  37   1          TMOD |= 0x01;//¨Ï¥Î¼Ò¦¡1¡A16¦ì¤¸­p®É¾¹¡A¨Ï¥Î"|"²Å¸¹¥i¥H¦b¨Ï¥Î¦h­Ó­p®É¾¹®É¤£¨ü¼vÅT
-  38   1          EA = 1;      //Á`¤¤Â_¥´¶}
-  39   1          ET0 = 1;     //­p®É¾¹¤¤Â_¥´¶}
-  40   1          TR0 = 1;     //­p®É¾¹¶}Ãö¥´¶}
-  41   1      }
-  42          /*------------------------------------------------
-  43           Åã¥Ü¨ç¼Æ¡A¥Î©ó°ÊºA±½ºË¼Æ½XºŞ
-  44          ------------------------------------------------*/
-  45          void Display(unsigned char FirstBit, unsigned char Num) {
-  46   1          static unsigned char i = 0;
-  47   1      
-  48   1          DataPort = 0;   //²MªÅ¸ê®Æ¡A¨¾¤î¦³¥æ´À­«¼v
-  49   1          LATCH1 = 1;     //¬qÂê¦s
-  50   1          LATCH1 = 0;
-  51   1      
-  52   1          DataPort = dofly_WeiMa[i + FirstBit]; //¨ú¦ì½X 
-  53   1          LATCH2 = 1;     //¦ìÂê¦s
-  54   1          LATCH2 = 0;
-  55   1      
-C51 COMPILER V7.08   MAIN                                                                  06/01/2024 16:43:14 PAGE 2   
+  31          /*------------------------------------------------
+  32                                          è¨ˆæ™‚å™¨åˆå§‹åŒ–å‰¯ç¨‹å¼
+  33          ------------------------------------------------*/
+  34          void Init_Timer0(void) {
+  35   1              TMOD |= 0x01;//ä½¿ç”¨æ¨¡å¼1ï¼Œ16ä½å…ƒè¨ˆæ™‚å™¨ï¼Œä½¿ç”¨"|"ç¬¦è™Ÿå¯ä»¥åœ¨ä½¿ç”¨å¤šå€‹è¨ˆæ™‚å™¨æ™‚ä¸å—
+             -å½±éŸ¿
+  36   1              EA = 1;      //ç¸½ä¸­æ–·æ‰“é–‹
+  37   1              ET0 = 1;     //è¨ˆæ™‚å™¨ä¸­æ–·æ‰“é–‹
+  38   1              TR0 = 1;     //è¨ˆæ™‚å™¨é–‹é—œæ‰“é–‹
+  39   1      }
+  40          /*------------------------------------------------
+  41                                  é¡¯ç¤ºå‡½æ•¸ï¼Œç”¨æ–¼å‹•æ…‹æƒç„æ•¸ç¢¼ç®¡
+  42          ------------------------------------------------*/
+  43          void Display(unsigned char FirstBit, unsigned char Num) {
+  44   1              static unsigned char i = 0;
+  45   1      
+  46   1              DataPort = 0;   //æ¸…ç©ºè³‡æ–™ï¼Œé˜²æ­¢æœ‰äº¤æ›¿é‡å½±
+  47   1              LATCH1 = 1;     //æ®µé–å­˜
+  48   1              LATCH1 = 0;
+  49   1      
+  50   1              DataPort = dofly_WeiMa[i + FirstBit]; //å–ä½ç¢¼ 
+  51   1              LATCH2 = 1;     //ä½é–å­˜
+  52   1              LATCH2 = 0;
+  53   1      
+  54   1              DataPort = TempData[i]; //å–é¡¯ç¤ºè³‡æ–™ï¼Œæ®µç¢¼
+C51 COMPILER V7.08   MAIN                                                                  06/03/2024 22:53:05 PAGE 2   
 
-  56   1          DataPort = TempData[i]; //¨úÅã¥Ü¸ê®Æ¡A¬q½X
-  57   1          LATCH1 = 1;     //¬qÂê¦s
-  58   1          LATCH1 = 0;
-  59   1      
-  60   1          i++;
-  61   1          if (i == Num)
-  62   1              i = 0;
-  63   1      }
-  64          /*------------------------------------------------
-  65                           ­p®É¾¹¤¤Â_°Æµ{¦¡
-  66          ------------------------------------------------*/
-  67          void Timer0_isr(void) interrupt 1
-  68          {
-  69   1          TH0 = (65536 - 2000) / 256;           //­«·s½á­È 2ms
-  70   1          TL0 = (65536 - 2000) % 256;
-  71   1          Display(0, 8);       // ½Õ¥Î¼Æ½XºŞ±½ºË
-  72   1          TF1 = 0;
-  73   1      }
-  74          char* itos(word x){
-  75   1              if(x==10)return 'A';
-  76   1              else return x+'0';
-  77   1      }
-  78          void main(void) {
-  79   1          word i, j;
-  80   1              word state;
-  81   1              byte key;
-  82   1              word guess_cnt=0, guess_num=0;
-  83   1          InitUART();
-  84   1          Init_Timer0();
-  85   1          ES = 1;                  //¥´¶}¦ê¤f¤¤Â_
-  86   1          while (1) {
-  87   2                      key = KeyPro();
-  88   2              if (rec_flag == 1) {// ¦³UART¿é¤J
-  89   3                  for (i = 0;i < 8;j++) TempData[i] = 0; //²M«Ì
-  90   3                  buf[head] = '\0';
-  91   3                              if(buf[0]=='W'){// ²q¹ï
-  92   4                                      //Åã¥ÜTrue
-  93   4                                      state=PREPARE;
-  94   4                              }
-  95   3                              else if(buf[0]=='L'){// ²q¿ù
-  96   4                                      //Åã¥ÜFalse
-  97   4                                      state=PREPARE;
-  98   4                              }
-  99   3                              else if(buf[0]=='G'){// ¨C½üµ²§ô
- 100   4                                      //Åã¥Üµ²ªG
- 101   4                                      state=END;
- 102   4                              }
- 103   3                              else if(buf[0]>='0' && buf[0]<='6'){//±o¨ì§Úªº¼Æ¦r
- 104   4                                      //Åã¥Ü§Úªº¼Æ¦r
- 105   4                                      state=WAIT;
- 106   4                              }
- 107   3                              else if(buf[0]=='T'){// ½ü¨ì§Ú²q
- 108   4                                      //Åã¥Üguess
- 109   4                                      state=GUESS;
- 110   4                              }
- 111   3                              else if(buf[0]=='O'){// ±µ¦¬¹ï¤è²q
- 112   4                                      catchable=1;
- 113   4                                      state=GUESS;
- 114   4                              }
- 115   3                  rec_flag = 0;
- 116   3                  head = 0;
- 117   3              }
-C51 COMPILER V7.08   MAIN                                                                  06/01/2024 16:43:14 PAGE 3   
+  55   1              LATCH1 = 1;     //æ®µé–å­˜
+  56   1              LATCH1 = 0;
+  57   1      
+  58   1              i++;
+  59   1              if (i == Num)
+  60   1                      i = 0;
+  61   1      }
+  62          /*------------------------------------------------
+  63                                           è¨ˆæ™‚å™¨ä¸­æ–·å‰¯ç¨‹å¼
+  64          ------------------------------------------------*/
+  65          void Timer0_isr(void) interrupt 1
+  66          {
+  67   1              TH0 = (65536 - 2000) / 256;               //é‡æ–°è³¦å€¼ 2ms
+  68   1              TL0 = (65536 - 2000) % 256;
+  69   1              Display(0, 8);       // èª¿ç”¨æ•¸ç¢¼ç®¡æƒç„
+  70   1              TF1 = 0;
+  71   1      }
+  72          char* itos(word x) {
+  73   1              if (x == 10) return 'A';
+  74   1              else return x + '0';
+  75   1      }
+  76          int stoi(char x) {
+  77   1              if (x == 'A') return 10;
+  78   1              else return x - '0';
+  79   1      }
+  80          
+  81          byte wait_input(word x) {//ç­‰å¾…è¼¸å…¥
+  82   1              byte key;
+  83   1              key = KeyPro();
+  84   1              while (key == 0xff) {
+  85   2                      TempData[x] = TempData[x] ^ 0x80;
+  86   2                      key = KeyPro();
+  87   2                      DelayMs(10);
+  88   2              }
+  89   1              TempData[x] = TempData[x] & 0x7f;
+  90   1              return key;
+  91   1      }
+  92          void clearData() {//æ¸…å±
+  93   1              word i;
+  94   1              for (i = 0;i < 8;i++) TempData[i] = 0;
+  95   1      }
+  96          void switch_show() {
+  97   1              word i;
+  98   1              byte key, temp[8];
+  99   1              for (i = 0;i < 8;i++) temp[i] = TempData[i]; //å„²å­˜
+ 100   1              clearData();//æ¸…å±
+ 101   1              TempData[0] = dofly_DuanMa[mynum[0]];
+ 102   1              TempData[1] = dofly_DuanMa[mynum[1]];
+ 103   1              TempData[2] = dofly_DuanMa[mynum[2]];
+ 104   1              TempData[3] = dofly_DuanMa[mynum[3]];
+ 105   1              key = wait_input(7);
+ 106   1              while (key != 12) key = wait_input(7);
+ 107   1              for (i = 0;i < 8;i++) TempData[i] = temp[i]; //é‚„åŸ
+ 108   1      }
+ 109          void main(void) {
+ 110   1              word state;
+ 111   1              byte key;
+ 112   1              word guess_cnt = 0, guess_num = 0;
+ 113   1              InitUART();
+ 114   1              Init_Timer0();
+ 115   1              ES = 1;// æ‰“é–‹ä¸²å£ä¸­æ–·
+ 116   1              state = PREPARE;
+C51 COMPILER V7.08   MAIN                                                                  06/03/2024 22:53:05 PAGE 3   
 
- 118   2                      if(key!=0xff){// ¦³Áä½L¿é¤J
- 119   3                              if(state==GUESS){// ²q´ú
- 120   4                                      if(key>=1 && key<=10){
- 121   5                                              while(key!=15){
- 122   6                                                      if(key>=1 && key<=10) guess_cnt = key;
- 123   6                                                      key = KeyPro();
- 124   6                                                      while(key==0xff)key = KeyPro();
- 125   6                                              }
- 126   5                                              key = KeyPro();
- 127   5                                              while(~(key>=1 && key<=6))key = KeyPro();
- 128   5                                              while(key!=15){
- 129   6                                                      if(key>=1 && key<=6) guess_num = key;
- 130   6                                                      key = KeyPro();
- 131   6                                                      while(key==0xff)key = KeyPro();
- 132   6                                              }
- 133   5                                              UART_SendStr(strcat(itos(guess_cnt),itos(guess_num)));//¶Ç°e²q´ú
- 134   5                                              state=WAIT;
- 135   5                                      }
- 136   4                                      else if(key==15 && catchable){// §ì
- 137   5                                              UART_SendStr("STOP");
- 138   5                                              catchable = 0;
- 139   5                                              state=WAIT;
- 140   5                                      }
- 141   4                              }
- 142   3                              else if(state==PREPARE){
- 143   4                                      if(key==15){
- 144   5                                              UART_SendStr("READY");//·Ç³Æ§¹¦¨
- 145   5                                              state=WAIT;
- 146   5                                      }
- 147   4                              }
- 148   3                      }
- 149   2                      if(state==END)break;
- 150   2          }
- 151   1      }
+ 117   1              while (1) {
+ 118   2                      if (state == WAIT) {// ç­‰å¾…UARTè¼¸å…¥
+ 119   3                              clearData();//æ¸…å±
+ 120   3                              // é¡¯ç¤ºLOAd
+ 121   3                              TempData[0] = 0x38;
+ 122   3                              TempData[1] = 0x3f;
+ 123   3                              TempData[2] = 0x77;
+ 124   3                              TempData[3] = 0x5e;
+ 125   3                              TempData[4] = 0x80;
+ 126   3                              TempData[5] = 0x80;
+ 127   3                              TempData[6] = 0x80;
+ 128   3                              if (rec_flag == 1) {// UARTè¼¸å…¥
+ 129   4                                      clearData();//æ¸…å±
+ 130   4                                      buf[head] = '\0';
+ 131   4                                      if (buf[0] == 'W') {// çŒœå°
+ 132   5                                              // é¡¯ç¤ºTrUE
+ 133   5                                              TempData[0] = 0x78;
+ 134   5                                              TempData[1] = 0x50;
+ 135   5                                              TempData[2] = 0x3e;
+ 136   5                                              TempData[3] = 0x79;
+ 137   5                                              state = PREPARE;
+ 138   5                                      }
+ 139   4                                      else if (buf[0] == 'L') {// çŒœéŒ¯
+ 140   5                                              // é¡¯ç¤ºFALSE
+ 141   5                                              TempData[0] = 0x71;
+ 142   5                                              TempData[1] = 0x77;
+ 143   5                                              TempData[2] = 0x38;
+ 144   5                                              TempData[3] = 0x6e;
+ 145   5                                              TempData[4] = 0x79;
+ 146   5                                              state = PREPARE;
+ 147   5                                      }
+ 148   4                                      else if (buf[0] == 'G') {// æ¯è¼ªçµæŸ
+ 149   5                                              // é¡¯ç¤ºEnd  X-Y
+ 150   5                                              // myLife = stoi(buf[5]);
+ 151   5                                              // oppoLiife = stoi(buf[6]);
+ 152   5                                              TempData[0] = 0x79;
+ 153   5                                              TempData[1] = 0x54;
+ 154   5                                              TempData[2] = 0x5e;
+ 155   5                                              TempData[5] = dofly_DuanMa[stoi(buf[5])];
+ 156   5                                              TempData[6] = 0x40;
+ 157   5                                              TempData[7] = dofly_DuanMa[stoi(buf[6])];
+ 158   5                                              if (stoi(buf[5]) <= 0 || stoi(buf[6]) <= 0)state = END;
+ 159   5                                              else state = PREPARE;
+ 160   5                                      }
+ 161   4                                      else if (buf[0] >= '0' && buf[0] <= '6') {// å¾—åˆ°æˆ‘çš„æ•¸å­—
+ 162   5                                              // é¡¯ç¤ºæˆ‘çš„æ•¸å­—
+ 163   5                                              mynum[0] = stoi(buf[0]);
+ 164   5                                              mynum[1] = stoi(buf[1]);
+ 165   5                                              mynum[2] = stoi(buf[2]);
+ 166   5                                              mynum[3] = stoi(buf[3]);
+ 167   5                                              TempData[0] = dofly_DuanMa[mynum[0]];
+ 168   5                                              TempData[1] = dofly_DuanMa[mynum[1]];
+ 169   5                                              TempData[2] = dofly_DuanMa[mynum[2]];
+ 170   5                                              TempData[3] = dofly_DuanMa[mynum[3]];
+ 171   5                                              state = PREPARE;
+ 172   5                                      }
+ 173   4                                      else if (buf[0] == 'T') {// è¼ªåˆ°æˆ‘çŒœ
+ 174   5                                              // é¡¯ç¤ºGUESS 
+ 175   5                                              TempData[0] = 0x6f;
+ 176   5                                              TempData[1] = 0x3e;
+ 177   5                                              TempData[2] = 0x79;
+ 178   5                                              TempData[3] = 0x6e;
+C51 COMPILER V7.08   MAIN                                                                  06/03/2024 22:53:05 PAGE 4   
+
+ 179   5                                              TempData[4] = 0x6e;
+ 180   5                                              state = GUESS;
+ 181   5                                      }
+ 182   4                                      else if (buf[0] == 'O') {// æ¥æ”¶å°æ–¹çŒœã€ŒXå€‹Yã€
+ 183   5                                              // é¡¯ç¤ºOPPO X Y
+ 184   5                                              TempData[0] = 0x3f;
+ 185   5                                              TempData[1] = 0x73;
+ 186   5                                              TempData[2] = 0x73;
+ 187   5                                              TempData[3] = 0x3f;
+ 188   5                                              TempData[5] = dofly_DuanMa[stoi(buf[5])];
+ 189   5                                              TempData[7] = dofly_DuanMa[stoi(buf[6])];
+ 190   5                                              key = wait_input(7);
+ 191   5                                              while (key != 15) key = wait_input(7);
+ 192   5                                              clearData();//æ¸…å±
+ 193   5                                              // é¡¯ç¤ºGUESS 
+ 194   5                                              TempData[0] = 0x6f;
+ 195   5                                              TempData[1] = 0x3e;
+ 196   5                                              TempData[2] = 0x79;
+ 197   5                                              TempData[3] = 0x6e;
+ 198   5                                              TempData[4] = 0x6e;
+ 199   5                                              catchable = 1;
+ 200   5                                              state = GUESS;
+ 201   5                                      }
+ 202   4                                      rec_flag = 0;
+ 203   4                                      head = 0;
+ 204   4                              }
+ 205   3                      }
+ 206   2                      else if (state == GUESS) {// çŒœæ¸¬éšæ®µ
+ 207   3                              key = KeyPro();
+ 208   3                              if (key >= 1 && key <= 10) {
+ 209   4                                      while (key != 15) {
+ 210   5                                              if (key >= 1 && key <= 10) guess_cnt = key;
+ 211   5                                              else if (key == 12) switch_show();
+ 212   5                                              TempData[5] = dofly_DuanMa[guess_cnt];
+ 213   5                                              key = KeyPro();
+ 214   5                                              while (key == 0xff) key = wait_input(5);
+ 215   5                                      }
+ 216   4                                      TempData[6] = 0x40;
+ 217   4                                      key = KeyPro();
+ 218   4                                      while (~(key >= 1 && key <= 6)) {
+ 219   5                                              key = KeyPro();
+ 220   5                                              if (key == 12) switch_show();
+ 221   5                                      }
+ 222   4                                      while (key != 15) {
+ 223   5                                              if (key >= 1 && key <= 6) guess_num = key;
+ 224   5                                              else if (key == 12) switch_show();
+ 225   5                                              TempData[7] = dofly_DuanMa[guess_num];
+ 226   5                                              key = wait_input(7);
+ 227   5                                              while (key == 0xff) key = wait_input(7);
+ 228   5                                      }
+ 229   4                                      UART_SendStr(strcat(itos(guess_cnt), itos(guess_num)));// å‚³é€çŒœæ¸¬
+ 230   4                                      state = WAIT;
+ 231   4                              }
+ 232   3                              else if (key == 15 && catchable) {// æŠ“
+ 233   4                                      UART_SendStr("STOP");
+ 234   4                                      catchable = 0;
+ 235   4                                      state = WAIT;
+ 236   4                              }
+ 237   3                              else if (key == 12) switch_show();
+ 238   3                      }
+ 239   2                      else if (state == PREPARE) {
+ 240   3                              key = wait_input(7);
+C51 COMPILER V7.08   MAIN                                                                  06/03/2024 22:53:05 PAGE 5   
+
+ 241   3                              while (key != 15) key = wait_input(7);
+ 242   3                              UART_SendStr("READY");// æº–å‚™å®Œæˆ
+ 243   3                              state = WAIT;
+ 244   3                      }
+ 245   2                      else if (state == END) {
+ 246   3                              key = wait_input(7);
+ 247   3                              while (~(key == 15 || key == 14)) key = wait_input(7);
+ 248   3                              if (key == 14) break;
+ 249   3                              else {
+ 250   4                                      clearData();// æ¸…å±
+ 251   4                                      state = PREPARE;
+ 252   4                              }
+ 253   3                      }
+ 254   2              }
+ 255   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    522    ----
+   CODE SIZE        =   1142    ----
    CONSTANT SIZE    =     35    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =     19       9
+   DATA SIZE        =     17      20
    IDATA SIZE       =   ----    ----
    BIT SIZE         =      1    ----
 END OF MODULE INFORMATION.

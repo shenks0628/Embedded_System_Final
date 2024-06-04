@@ -58,7 +58,7 @@ def gameStart():
     for i in yours:
         numStr += str(i)
     uart.write(numStr)
-    uart.sleep(1)
+    utime.sleep(1)
     print("Numbers sent: ", numStr)
     client.publish(your_num_topic, numStr)
     utime.sleep(1)
@@ -70,7 +70,7 @@ def roundStart():
     for i in yours:
         numStr += str(i)
     uart.write(numStr)
-    uart.sleep(1)
+    utime.sleep(1)
     print("Numbers sent: ", numStr)
     client.publish(your_num_topic, numStr)
     utime.sleep(1)
@@ -82,7 +82,7 @@ def gameEnd():
     print("YOUR HP: ", yourHP)
     print("OPPONENT HP: ", opponentHP)
     uart.write(f"GAME:{yourHP}{opponentHP}\r\n")
-    uart.sleep(1)
+    utime.sleep(1)
     utime.sleep(5)
     opponent_ready = False
     opponent_check = False
@@ -94,7 +94,7 @@ def roundEnd():
     print("YOUR HP: ", yourHP)
     print("OPPONENT HP: ", opponentHP)
     uart.write(f"ROUND:{yourHP}{opponentHP}\r\n")
-    uart.sleep(1)
+    utime.sleep(1)
     utime.sleep(5)
     opponent_ready = False
     opponent_check = False
@@ -105,7 +105,7 @@ def playerTurn():
     mode = YOUR_TURN
     print("Player2 Turn")
     uart.write("TURN\r\n")
-    uart.sleep(1)
+    utime.sleep(1)
 
 def check_guess(cnt, num):
     checker = 0
@@ -154,7 +154,7 @@ def win(checker, num):
     # client.publish(status_topic, b"PLAYER1 WINS")
     print("PLAYER2 WINS")
     uart.write(f"WIN:{checker}{num}\r\n")
-    uart.sleep(1)
+    utime.sleep(1)
     opponentHP -= 1
     if opponentHP == 0:
         gameEnd()
@@ -167,7 +167,7 @@ def lose(checker, num):
     # client.publish(status_topic, b"PLAYER2 WINS")
     print("PLAYER1 WINS")
     uart.write(f"LOSE:{checker}{num}\r\n")
-    uart.sleep(1)
+    utime.sleep(1)
     yourHP -= 1
     if yourHP == 0:
         gameEnd()
@@ -207,7 +207,7 @@ def sub_cb(topic, msg):
             current_guess.insert(msg[16])
             print("PLAYER1 GUESS:", msg[15:])
             uart.write(f"OPPO:{msg[15:]}\r\n")
-            uart.sleep(1)
+            utime.sleep(1)
             utime.sleep(5)
             playerTurn()
         elif msg == "PLAYER1 CALLS STOP":
@@ -236,7 +236,7 @@ client.subscribe(opponent_num_topic)
 
 print('MicroPython Ready...')  # 輸出訊息到終端機
 uart.write('MicroPython Ready...')
-uart.sleep(1)
+utime.sleep(1)
 
 while True:
     client.check_msg()

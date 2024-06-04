@@ -14,10 +14,11 @@ PLAYER1 = "PLAYER1"
 PLAYER2 = "PLAYER2"
 WAITING = 0
 READY = 1
-YOUR_TURN = 2
-OPPONENT_TURN = 3
-STOP = 4
-WAIT_NEXT = 5
+CHECK = 2
+YOUR_TURN = 3
+OPPONENT_TURN = 4
+STOP = 5
+WAIT_NEXT = 6
 DATABASE_URL = "https://embedded-system-final-default-rtdb.asia-southeast1.firebasedatabase.app"
 
 # MQTT 客戶端
@@ -38,6 +39,7 @@ opponent_num_topic = ADAFRUIT_IO_USERNAME + "/feeds/" + OPPONENT_NUM
 
 mode = WAITING
 opponent_ready = False
+opponent_check = False
 yours = []
 opponents = []
 yourHP = 3
@@ -74,7 +76,7 @@ def roundStart():
     utime.sleep(1)
 
 def gameEnd():
-    global mode, yourHP, opponentHP, opponent_ready
+    global mode, yourHP, opponentHP, opponent_ready, opponent_check
     # client.publish(status_topic, b"GAME END")
     print("GAME END")
     print("YOUR HP: ", yourHP)
@@ -83,10 +85,11 @@ def gameEnd():
     uart.sleep(1)
     utime.sleep(5)
     opponent_ready = False
+    opponent_check = False
     mode = WAITING
 
 def roundEnd():
-    global mode, yourHP, opponentHP, opponent_ready
+    global mode, yourHP, opponentHP, opponent_ready, opponent_check
     print("ROUND END")
     print("YOUR HP: ", yourHP)
     print("OPPONENT HP: ", opponentHP)
@@ -94,6 +97,7 @@ def roundEnd():
     uart.sleep(1)
     utime.sleep(5)
     opponent_ready = False
+    opponent_check = False
     mode = WAIT_NEXT
 
 def playerTurn():
@@ -184,7 +188,7 @@ def sub_cb(topic, msg):
                 print("GAME START")
                 gameStart()
                 print("PLAYER2 NUMBERS SENT")
-                print("PLAYER1 TURN")
+                mode = CHECK
         elif msg == "PLAYER1 READY FOR NEXT":
             opponents.clear()
             opponent_ready = True
@@ -192,7 +196,11 @@ def sub_cb(topic, msg):
                 print("ROUND START")
                 roundStart()
                 print("PLAYER2 NUMBERS SENT")
-                print("PLAYER1 TURN")
+                mode = CHECK
+        elif msg == "PLAYER1 CHECK":
+            opponent_check = True
+            if opponent_check and mode == CHECK:
+                mode = OPPONENT_TURN
         elif msg[:13] == "PLAYER1 GUESS":
             current_guess.clear()
             current_guess.insert(msg[15])
@@ -244,7 +252,7 @@ while True:
                 print("GAME START")
                 gameStart()
                 print("PLAYER2 NUMBERS SENT")
-                print("PLAYER1 TURN")
+                mode = CHECK
         elif mode == WAIT_NEXT and msg == b"READY":
             yours.clear()
             client.publish(status_topic, b"PLAYER2 READY FOR NEXT")
@@ -254,7 +262,12 @@ while True:
                 print("ROUND START")
                 roundStart()
                 print("PLAYER2 NUMBERS SENT")
-                print("PLAYER1 TURN")
+                mode = CHECK
+        elif mode == CHECK and msg == b"READY":
+            client.publish(status_topic, b"PLAYER2 CHECK")
+            print("PLAYER2 CHECK")
+            if opponent_check and mode == CHECK:
+                mode = OPPONENT_TURN
         elif mode == YOUR_TURN:
             if msg == b"STOP":
                 client.publish(status_topic, b"PLAYER2 CALLS STOP")

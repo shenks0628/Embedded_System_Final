@@ -1,0 +1,17 @@
+<html>
+<body>
+<pre>
+<h1>猩ision2 Build Log</h1>
+<h2>Project:</h2>
+C:\Users\hugod\Desktop\嵌入式系統\Embedded_System_Final\8051\Final.uv2
+Project File Date:  05/27/2024
+
+<h2>Output:</h2>
+Build target 'Target 1'
+compiling delay.c...
+compiling keyscan.c...
+compiling main.c...
+compiling uart.c...
+linking...
+Program Size: data=73.1 xdata=0 code=1968
+"Final" - 0 Error(s), 0 Warning(s).

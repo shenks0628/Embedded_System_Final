@@ -1,0 +1,97 @@
+C51 COMPILER V7.08   UART                                                                  06/03/2024 23:12:14 PAGE 1   
+
+
+C51 COMPILER V7.08, COMPILATION OF MODULE UART
+OBJECT MODULE PLACED IN uart.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE uart.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <reg52.h> //包含標頭檔
+   2          #include "uart.h"
+   3          typedef unsigned char byte;
+   4          typedef unsigned int  word;
+   5          unsigned int max = 20;
+   6          byte buf[20];
+   7          word head = 0;
+   8          byte get_0d = 0;
+   9          byte rec_flag = 0;
+  10          /*------------------------------------------------
+  11                              串口初始化
+  12          ------------------------------------------------*/
+  13          void InitUART(void) {
+  14   1          SCON = 0x50;                        // SCON: 模式 1, 8-bit UART, 使能接收  
+  15   1          TMOD |= 0x20;               // TMOD: timer 1, mode 2, 8-bit 重裝
+  16   1          TH1 = 0xFD;               // TH1:  重裝值 9600 串列傳輸速率 晶振 11.0592MHz  
+  17   1          TR1 = 1;                  // TR1:  timer 1 打開                         
+  18   1          EA = 1;                  //打開總中斷
+  19   1      }
+  20          /*------------------------------------------------
+  21                              發送一個位元組
+  22          ------------------------------------------------*/
+  23          void UART_SendByte(unsigned char dat) {
+  24   1          SBUF = dat;
+  25   1          while (!TI);
+  26   1          TI = 0;
+  27   1      }
+  28          
+  29          /*------------------------------------------------
+  30                              發送一個字串
+  31          ------------------------------------------------*/
+  32          void UART_SendStr(unsigned char* s) {
+  33   1          while (*s != '\0')// \0 表示字串結束標誌，通過檢測是否字串末尾
+  34   1          {
+  35   2              UART_SendByte(*s);
+  36   2              if (*s == '\n') //若結尾是換行符號也跳出
+  37   2                  break;
+  38   2              s++;
+  39   2          }
+  40   1      }
+  41          
+  42          
+  43          /*------------------------------------------------
+  44                               串口中斷程式
+  45          ------------------------------------------------*/
+  46          void UART_SER(void) interrupt 4 //串列中斷服務程式
+  47          {
+  48   1          // 0x0d:'\r' 0x0a:'\n'
+  49   1          unsigned char tmp;              //定義臨時變數 
+  50   1          if (RI) {                       //判斷是接收中斷產生
+  51   2              RI = 0;                      //標誌位元清零
+  52   2              tmp = SBUF;                 //讀入緩衝區的值
+  53   2              if (get_0d == 0) {
+  54   3                  if (tmp == 0x0d) get_0d = 1;
+  55   3                  else {
+C51 COMPILER V7.08   UART                                                                  06/03/2024 23:12:14 PAGE 2   
+
+  56   4                      buf[head] = tmp;
+  57   4                      head++;
+  58   4                      if (head == MAX) head = 0;
+  59   4                  }
+  60   3              }
+  61   2              else if (get_0d == 1) {
+  62   3                  if (tmp != 0x0a) {
+  63   4                      head = 0;
+  64   4                      get_0d = 0;
+  65   4                  }
+  66   3                  else {
+  67   4                      rec_flag = 1;
+  68   4                      get_0d = 0;
+  69   4                  }
+  70   3              }
+  71   2          }
+  72   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    142    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     26    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

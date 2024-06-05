@@ -272,10 +272,12 @@ while True:
                 client.publish(status_topic, b"PLAYER1 CALLS STOP")
                 print("PLAYER1 CALLS STOP")
                 mode = STOP
-                cnt = (current_guess[0] - '0')
+                cnt = 0
                 if current_guess[0] == 'A':
                     cnt = 10
-                num = (current_guess[1] - '0')
+                else:
+                    cnt = int(current_guess[0])
+                num = int(current_guess[1])
                 checker = check_guess(cnt, num)
                 if checker >= cnt:
                     lose(checker, num)

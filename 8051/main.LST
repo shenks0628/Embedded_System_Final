@@ -1,4 +1,4 @@
-C51 COMPILER V7.08   MAIN                                                                  06/05/2024 22:03:36 PAGE 1   
+C51 COMPILER V7.08   MAIN                                                                  06/05/2024 22:04:27 PAGE 1   
 
 
 C51 COMPILER V7.08, COMPILATION OF MODULE MAIN
@@ -62,7 +62,7 @@ line level    source
   52   1      
   53   1              DataPort = TempData[i]; //取顯示資料，段碼
   54   1              LATCH1 = 1;     //段鎖存
-C51 COMPILER V7.08   MAIN                                                                  06/05/2024 22:03:36 PAGE 2   
+C51 COMPILER V7.08   MAIN                                                                  06/05/2024 22:04:27 PAGE 2   
 
   55   1              LATCH1 = 0;
   56   1      
@@ -126,7 +126,7 @@ line level    source
  114   1              word oppo_guess_cnt = 0, oppo_guess_num = 1;
  115   1              InitUART();
  116   1              Init_Timer0();
-C51 COMPILER V7.08   MAIN                                                                  06/05/2024 22:03:36 PAGE 3   
+C51 COMPILER V7.08   MAIN                                                                  06/05/2024 22:04:27 PAGE 3   
 
  117   1              ES = 1;// 打開串口中斷
  118   1              while (1) {
@@ -190,7 +190,7 @@ line level    source
  176   5                                              mynum[3] = ctoi(buf[3]);
  177   5                                              mynum[4] = ctoi(buf[4]);
  178   5                                              TempData[0] = dofly_DuanMa[mynum[0]];
-C51 COMPILER V7.08   MAIN                                                                  06/05/2024 22:03:36 PAGE 4   
+C51 COMPILER V7.08   MAIN                                                                  06/05/2024 22:04:27 PAGE 4   
 
  179   5                                              TempData[1] = dofly_DuanMa[mynum[1]];
  180   5                                              TempData[2] = dofly_DuanMa[mynum[2]];
@@ -254,7 +254,7 @@ line level    source
  238   6                                                      while (key != 15) key = wait_input(7);
  239   6                                                      continue;
  240   6                                              }
-C51 COMPILER V7.08   MAIN                                                                  06/05/2024 22:03:36 PAGE 5   
+C51 COMPILER V7.08   MAIN                                                                  06/05/2024 22:04:27 PAGE 5   
 
  241   5                                              UART_SendStr(guess);// 傳送猜測
  242   5                                              state = WAIT;

@@ -19,7 +19,9 @@ CHECK = 3
 YOUR_TURN = 4
 OPPONENT_TURN = 5
 STOP = 6
-WAIT_NEXT = 7
+WAIT_CONFIRM = 7
+CONFIRM = 8
+WAIT_NEXT = 9
 DATABASE_URL = "https://embedded-system-final-default-rtdb.asia-southeast1.firebasedatabase.app"
 
 # MQTT 客戶端
@@ -41,6 +43,8 @@ opponent_num_topic = ADAFRUIT_IO_USERNAME + "/feeds/" + OPPONENT_NUM
 mode = WAITING
 opponent_ready = False
 opponent_check = False
+opponent_confirm = False
+current_status = 0
 yours = []
 opponents = []
 yourHP = 3
@@ -77,27 +81,29 @@ def roundStart():
     utime.sleep(1)
 
 def gameEnd():
-    global mode, yourHP, opponentHP, opponent_ready, opponent_check
+    global mode, yourHP, opponentHP, opponent_ready, opponent_check, current_status, opponent_confirm
     print("GAME END")
     print("YOUR HP: ", yourHP)
     print("OPPONENT HP: ", opponentHP)
     uart.write(f"GAME:{yourHP}{opponentHP}\r\n")
     utime.sleep(1)
-    utime.sleep(5)
     opponent_ready = False
     opponent_check = False
+    opponent_confirm = False
+    current_status = 0
     mode = WAITING
 
 def roundEnd():
-    global mode, yourHP, opponentHP, opponent_ready, opponent_check
+    global mode, yourHP, opponentHP, opponent_ready, opponent_check, current_status, opponent_confirm
     print("ROUND END")
     print("YOUR HP: ", yourHP)
     print("OPPONENT HP: ", opponentHP)
     uart.write(f"GAME:{yourHP}{opponentHP}\r\n")
     utime.sleep(1)
-    utime.sleep(5)
     opponent_ready = False
     opponent_check = False
+    opponent_confirm = False
+    current_status = 0
     mode = WAIT_NEXT
 
 def playerTurn():
@@ -150,31 +156,23 @@ def player1LoseDBUPD():
     res.close()
 
 def win(checker, num):
-    global mode, yourHP, opponentHP
+    global mode, yourHP, opponentHP, current_status
     print("PLAYER1 WINS")
     uart.write(f"WIN:{checker}{num}\r\n")
     utime.sleep(1)
-    opponentHP -= 1
-    if opponentHP == 0:
-        gameEnd()
-        player1WINDBUPD()
-    else:
-        roundEnd()
+    mode = WAIT_CONFIRM
+    current_status = 1
 
 def lose(checker, num):
-    global mode, yourHP, opponentHP
+    global mode, yourHP, opponentHP, current_status
     print("PLAYER2 WINS")
     uart.write(f"LOSE:{checker}{num}\r\n")
     utime.sleep(1)
-    yourHP -= 1
-    if yourHP == 0:
-        gameEnd()
-        player1LoseDBUPD()
-    else:
-        roundEnd()
+    mode = WAIT_CONFIRM
+    current_status = -1
 
 def sub_cb(topic, msg):
-    global mode, opponent_ready, current_guess, opponents, opponent_check
+    global mode, opponent_ready, current_guess, opponents, opponent_check, current_status, opponent_confirm, yourHP, opponentHP
     msg = msg.decode()
     print(msg)
     msg = str(msg)
@@ -222,6 +220,23 @@ def sub_cb(topic, msg):
                 win(checker, num)
             elif checker < cnt:
                 lose(checker, num)
+        elif msg == "PLAYER2 CONFIRM":
+            opponent_confirm = True
+            if opponent_confirm and mode == CONFIRM:
+                if current_status == 1:
+                    opponentHP -= 1
+                    if opponentHP == 0:
+                        gameEnd()
+                        player1WINDBUPD()
+                    else:
+                        roundEnd()
+                elif current_status == -1:
+                    yourHP -= 1
+                    if yourHP == 0:
+                        gameEnd()
+                        player1LoseDBUPD()
+                    else:
+                        roundEnd()
     elif topic == opponent_num_topic:
         opponents.clear()
         for i in msg:
@@ -267,6 +282,25 @@ while True:
             mode = CHECK
             if opponent_check and mode == CHECK:
                 playerTurn()
+        elif mode == WAIT_CONFIRM and msg == b"READY":
+            client.publish(status_topic, b"PLAYER1 CONFIRM")
+            print("PLAYER1 CONFIRM")
+            mode = CONFIRM
+            if opponent_confirm and mode == CONFIRM:
+                if current_status == 1:
+                    opponentHP -= 1
+                    if opponentHP == 0:
+                        gameEnd()
+                        player1WINDBUPD()
+                    else:
+                        roundEnd()
+                elif current_status == -1:
+                    yourHP -= 1
+                    if yourHP == 0:
+                        gameEnd()
+                        player1LoseDBUPD()
+                    else:
+                        roundEnd()
         elif mode == YOUR_TURN:
             if msg == b"STOP":
                 client.publish(status_topic, b"PLAYER1 CALLS STOP")

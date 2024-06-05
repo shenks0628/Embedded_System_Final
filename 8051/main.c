@@ -117,12 +117,14 @@ void main(void) {
 	ES = 1;// 打開串口中斷
 	while (1) {
 		if (state == WAIT) {// 等待UART輸入
-			clearData();//清屏
-			// 顯示LOAd
-			TempData[0] = 0x38, TempData[1] = 0x3f;
-			TempData[2] = 0x77, TempData[3] = 0x5e;
-			TempData[4] = 0x80, TempData[5] = 0x80;
-			TempData[6] = 0x80;
+			if (TempData[0] != 0x38) {
+				clearData();//清屏
+				// 顯示LOAd
+				TempData[0] = 0x38, TempData[1] = 0x3f;
+				TempData[2] = 0x77, TempData[3] = 0x5e;
+				TempData[4] = 0x80, TempData[5] = 0x80;
+				TempData[6] = 0x80;
+			}
 			if (rec_flag == 1) {// UART輸入
 				clearData();//清屏
 				buf[head] = '\0';
@@ -186,11 +188,13 @@ void main(void) {
 		}
 		else if (state == GUESS) {// 猜測階段
 			while (state == GUESS) {
-				clearData();
-				// 顯示GUESS 
-				TempData[0] = 0x6f, TempData[1] = 0x3e;
-				TempData[2] = 0x79, TempData[3] = 0x6d;
-				TempData[4] = 0x6d;
+				if (TempData[0] != 0x6f) {
+					clearData();
+					// 顯示GUESS 
+					TempData[0] = 0x6f, TempData[1] = 0x3e;
+					TempData[2] = 0x79, TempData[3] = 0x6d;
+					TempData[4] = 0x6d;
+				}
 				key = KeyPro();
 				if (key >= 1 && key <= 10) {
 					while (key != 15) {
@@ -216,13 +220,14 @@ void main(void) {
 					guess[0] = itos(guess_cnt);
 					guess[1] = itos(guess_num);
 					guess[2] = '\0';
-					if ((guess_num == oppo_guess_num)) {
+					if ((guess_cnt == oppo_guess_cnt && guess_num < oppo_guess_num)) {
 						//顯示Error
 						TempData[0] = 0x79, TempData[1] = 0x50;
 						TempData[2] = 0x50, TempData[3] = 0x5c;
 						TempData[4] = 0x50;
 						key = wait_input(7);
 						while (key != 15) key = wait_input(7);
+						clearData();
 						// 顯示OPPO X Y
 						TempData[0] = 0x3f, TempData[1] = 0x73;
 						TempData[2] = 0x73, TempData[3] = 0x3f;

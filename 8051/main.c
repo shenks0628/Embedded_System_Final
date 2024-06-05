@@ -137,7 +137,7 @@ void main(void) {
 				else if (buf[0] == 'L') {// 猜錯
 					// 顯示FALSE
 					TempData[0] = 0x71, TempData[1] = 0x77;
-					TempData[2] = 0x38, TempData[3] = 0x6e;
+					TempData[2] = 0x38, TempData[3] = 0x6d;
 					TempData[4] = 0x79;
 					state = PREPARE;
 				}
@@ -220,7 +220,7 @@ void main(void) {
 					guess[0] = itos(guess_cnt);
 					guess[1] = itos(guess_num);
 					guess[2] = '\0';
-					if ((guess_cnt == oppo_guess_cnt && guess_num < oppo_guess_num)) {
+					if ((guess_cnt == oppo_guess_cnt && guess_num <= oppo_guess_num) || (guess_cnt < oppo_guess_cnt)) {
 						//顯示Error
 						TempData[0] = 0x79, TempData[1] = 0x50;
 						TempData[2] = 0x50, TempData[3] = 0x5c;

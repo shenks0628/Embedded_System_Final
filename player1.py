@@ -78,7 +78,6 @@ def roundStart():
 
 def gameEnd():
     global mode, yourHP, opponentHP, opponent_ready, opponent_check
-    # client.publish(status_topic, b"GAME END")
     print("GAME END")
     print("YOUR HP: ", yourHP)
     print("OPPONENT HP: ", opponentHP)
@@ -91,7 +90,6 @@ def gameEnd():
 
 def roundEnd():
     global mode, yourHP, opponentHP, opponent_ready, opponent_check
-    # client.publish(status_topic, b"ROUND END")
     print("ROUND END")
     print("YOUR HP: ", yourHP)
     print("OPPONENT HP: ", opponentHP)
@@ -153,7 +151,6 @@ def player1LoseDBUPD():
 
 def win(checker, num):
     global mode, yourHP, opponentHP
-    # client.publish(status_topic, b"PLAYER1 WINS")
     print("PLAYER1 WINS")
     uart.write(f"WIN:{checker}{num}\r\n")
     utime.sleep(1)
@@ -166,7 +163,6 @@ def win(checker, num):
 
 def lose(checker, num):
     global mode, yourHP, opponentHP
-    # client.publish(status_topic, b"PLAYER2 WINS")
     print("PLAYER2 WINS")
     uart.write(f"LOSE:{checker}{num}\r\n")
     utime.sleep(1)
@@ -178,7 +174,7 @@ def lose(checker, num):
         roundEnd()
 
 def sub_cb(topic, msg):
-    global mode, opponent_ready, current_guess, opponents
+    global mode, opponent_ready, current_guess, opponents, opponent_check
     msg = msg.decode()
     print(msg)
     msg = str(msg)
@@ -235,11 +231,9 @@ def sub_cb(topic, msg):
 client.set_callback(sub_cb)
 client.connect()
 client.subscribe(status_topic)
-# client.subscribe(your_num_topic)
 client.subscribe(opponent_num_topic)
 
 print('MicroPython Ready...')  # 輸出訊息到終端機
-# uart.write('MicroPython Ready...')
 utime.sleep(1)
 
 while True:
@@ -294,7 +288,7 @@ while True:
                 current_guess.clear()
                 current_guess.append(msg[2])
                 current_guess.append(msg[3])
-                client.publish(status_topic, b"PLAYER1 GUESS: " + bytes(msg[2], encoding="utf-8") + bytes(msg[3], encoding="utf-8"))
+                client.publish(status_topic, b"PLAYER1 GUESS: " + bytes(msg[2], "utf-8") + bytes(msg[3], "utf-8"))
                 print(f"PLAYER1 GUESS: {msg[2]}{msg[3]}")
                 mode = OPPONENT_TURN
 

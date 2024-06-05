@@ -178,7 +178,7 @@ def lose(checker, num):
         roundEnd()
 
 def sub_cb(topic, msg):
-    global mode, opponent_ready, current_guess, opponents
+    global mode, opponent_ready, current_guess, opponents, opponent_check
     msg = msg.decode()
     print(msg)
     msg = str(msg)
@@ -294,7 +294,7 @@ while True:
                 current_guess.clear()
                 current_guess.append(msg[2])
                 current_guess.append(msg[3])
-                client.publish(status_topic, b"PLAYER1 GUESS: " + bytes(msg[2], encoding="utf-8") + bytes(msg[3], encoding="utf-8"))
+                client.publish(status_topic, b"PLAYER1 GUESS: " + bytes(msg[2], "utf-8") + bytes(msg[3], "utf-8"))
                 print(f"PLAYER1 GUESS: {msg[2]}{msg[3]}")
                 mode = OPPONENT_TURN
 

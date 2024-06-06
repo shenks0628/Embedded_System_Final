@@ -2,7 +2,7 @@ import xtools, utime, urequests, ujson
 from machine import RTC, UART, Pin, PWM, Timer
 from umqtt.simple import MQTTClient
 import random
-from sound import play_sound, play_end
+from sound import play_sound, play_win
 
 xtools.connect_wifi_led()
 
@@ -87,7 +87,6 @@ def gameEnd():
     opponent_check = False
     opponent_confirm = False
     current_status = 0
-    play_end()
     mode = WAITING
 
 def roundEnd():
@@ -109,7 +108,7 @@ def playerTurn():
     uart.write("TURN\r\n")
 
 def player2WINDBUPD():
-    mes = DATABASE_URL + "diceGame/player2.json"
+    mes = DATABASE_URL + "/diceGame/player2.json"
     res = urequests.get(mes)
     r = res.text
     res.close()
@@ -120,12 +119,12 @@ def player2WINDBUPD():
         win += data["win"]
         lose += data["lose"]
     data = {"win": win, "lose": lose}
-    mes = DATABASE_URL + "diceGame/player2.json"
+    mes = DATABASE_URL + "/diceGame/player2.json"
     res = urequests.put(mes, json=data)
     res.close()
 
 def player2LOSEDBUPD():
-    mes = DATABASE_URL + "diceGame/player2.json"
+    mes = DATABASE_URL + "/diceGame/player2.json"
     res = urequests.get(mes)
     r = res.text
     res.close()
@@ -136,7 +135,7 @@ def player2LOSEDBUPD():
         win += data["win"]
         lose += data["lose"]
     data = {"win": win, "lose": lose}
-    mes = DATABASE_URL + "diceGame/player2.json"
+    mes = DATABASE_URL + "/diceGame/player2.json"
     res = urequests.put(mes, json=data)
     res.close()
 
@@ -161,7 +160,7 @@ def sub_cb(topic, msg):
     msg = str(msg)
     if topic == b"shen115/feeds/status":
         if msg == "PLAYER1 READY":
-            opponents.clear()
+            # opponents.clear()
             opponent_ready = True
             if opponent_ready and mode == READY:
                 print("GAME START")
@@ -169,7 +168,7 @@ def sub_cb(topic, msg):
                 print("PLAYER2 NUMBERS SENT")
                 mode = WAIT_CHECK
         elif msg == "PLAYER1 READY FOR NEXT":
-            opponents.clear()
+            # opponents.clear()
             opponent_ready = True
             if opponent_ready and mode == READY:
                 print("ROUND START")
@@ -217,6 +216,7 @@ def sub_cb(topic, msg):
                     opponentHP -= 1
                     if opponentHP == 0:
                         gameEnd()
+                        play_win()
                         player2WINDBUPD()
                     else:
                         roundEnd()
@@ -227,7 +227,7 @@ def sub_cb(topic, msg):
                         player2LOSEDBUPD()
                     else:
                         roundEnd()
-    elif topic == opponent_num_topic:
+    elif topic == b"shen115/feeds/player1-num":
         opponents.clear()
         for i in msg:
             opponents.append(int(i))

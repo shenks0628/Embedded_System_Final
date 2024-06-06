@@ -2,7 +2,7 @@ import xtools, utime, urequests, ujson
 from machine import RTC, UART, Pin, PWM, Timer
 from umqtt.simple import MQTTClient
 import random
-from sound import play_sound, play_win
+from sound import play_sound, play_win, play_lose, play_notify
 
 xtools.connect_wifi_led()
 
@@ -104,6 +104,7 @@ def roundEnd():
 def playerTurn():
     global mode
     mode = YOUR_TURN
+    play_notify()
     print("Player2 Turn")
     uart.write("TURN\r\n")
 
@@ -185,6 +186,7 @@ def sub_cb(topic, msg):
             current_guess.append(msg[16])
             print("PLAYER1 GUESS:", msg[15:])
             uart.write(f"OPPO:{msg[15:]}\r\n")
+            play_notify()
             mode = YOUR_TURN
         elif msg == "PLAYER1 CALLS STOP":
             print("PLAYER1 CALLS STOP")
@@ -224,6 +226,7 @@ def sub_cb(topic, msg):
                     yourHP -= 1
                     if yourHP == 0:
                         gameEnd()
+                        play_lose()
                         player2LOSEDBUPD()
                     else:
                         roundEnd()
@@ -279,6 +282,7 @@ while True:
                     opponentHP -= 1
                     if opponentHP == 0:
                         gameEnd()
+                        play_win()
                         player2WINDBUPD()
                     else:
                         roundEnd()
@@ -286,6 +290,7 @@ while True:
                     yourHP -= 1
                     if yourHP == 0:
                         gameEnd()
+                        play_lose()
                         player2LOSEDBUPD()
                     else:
                         roundEnd()

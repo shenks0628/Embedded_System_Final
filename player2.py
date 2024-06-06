@@ -117,7 +117,7 @@ def check_guess(cnt, num):
     return checker
 
 def player2WINDBUPD():
-    mes = DATABASE_URL + "/player2.json"
+    mes = DATABASE_URL + "diceGame/player2.json"
     res = urequests.get(mes)
     r = res.text
     res.close()
@@ -133,7 +133,7 @@ def player2WINDBUPD():
     res.close()
 
 def player2LOSEDBUPD():
-    mes = DATABASE_URL + "/player2.json"
+    mes = DATABASE_URL + "diceGame/player2.json"
     res = urequests.get(mes)
     r = res.text
     res.close()

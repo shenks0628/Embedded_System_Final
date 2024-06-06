@@ -18,7 +18,7 @@ unsigned char code dofly_DuanMa[] = { 0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x
 									  0x77,0x7c,0x39,0x5e,0x79,0x71 };      // 段碼0~F
 unsigned char code dofly_WeiMa[] = { 0xfe,0xfd,0xfb,0xf7,0xef,0xdf,0xbf,0x7f };//位碼
 byte TempData[8];
-word mynum[5];
+word mynum[5], myLife, oppoLife;
 bit catchable = 0;
 
 // state
@@ -102,6 +102,8 @@ void switch_show() {
 	TempData[1] = dofly_DuanMa[mynum[1]];
 	TempData[2] = dofly_DuanMa[mynum[2]];
 	TempData[3] = dofly_DuanMa[mynum[3]];
+	TempData[4] = dofly_DuanMa[mynum[4]];
+	TempData[7] = dofly_DuanMa[myLife];
 	key = wait_input(7);
 	while (key != 12) key = wait_input(7);
 	for (i = 0;i < 8;i++) TempData[i] = temp[i]; //還原
@@ -119,7 +121,7 @@ void main(void) {
 		if (state == WAIT) {// 等待UART輸入
 			if (TempData[0] != 0x38) {
 				clearData();//清屏
-				// 顯示LOAd
+				// 顯示LOAd...
 				TempData[0] = 0x38, TempData[1] = 0x3f;
 				TempData[2] = 0x77, TempData[3] = 0x5e;
 				TempData[4] = 0x80, TempData[5] = 0x80;
@@ -143,8 +145,8 @@ void main(void) {
 				}
 				else if (buf[0] == 'G') {// 每輪結束
 					// 顯示End  X-Y
-					// myLife = ctoi(buf[5]);
-					// oppoLiife = ctoi(buf[6]);
+					myLife = ctoi(buf[5]);
+					oppoLife = ctoi(buf[6]);
 					TempData[0] = 0x79, TempData[1] = 0x54;
 					TempData[2] = 0x5e, TempData[5] = dofly_DuanMa[ctoi(buf[5])];
 					TempData[6] = 0x40, TempData[7] = dofly_DuanMa[ctoi(buf[6])];

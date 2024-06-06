@@ -23,6 +23,12 @@ music_end = [(3,1,0,0.3), (2,5,0,0.3), (2,4,1,0.3), (2,5,0,0.3),
              (3,4,1,0.3), (3,5,0,0.3), (3,6,0,0.3), (3,7,0,0.3),
              (3,5,0,0.3), (0,0,0,0.9)
              ]
+music_sad = [(1,5,0,0.25), (1,5,0,0.25), (1,5,0,0.25), (1,5,0,0.25),
+             (1,6,0,0.5), (1,4,1,0.25), (1,5,0,0.5),
+             (1,3,0,0.5), (1,4,0,0.5), (1,5,0,0.25),
+             (1,4,0,0.25), (1,3,0,0.25), (1,2,0,0.25), (1,1,0,1)
+             ]
+music_notify = [(1,5,0,0.25), (1,6,0,0.25), (1,5,0,0.25)]
 def play_sound(i): # 播音
     h, x, y, t = i
     try:
@@ -30,7 +36,7 @@ def play_sound(i): # 播音
     except:
         return
     if h == 0:
-        utime.sleep(0.3)
+        utime.sleep(t)
         return
     elif h == 1:
         if x == 1 and not y:
@@ -109,6 +115,12 @@ def play_sound(i): # 播音
             pwm = PWM(pin, freq = 1976, duty = 512)
     utime.sleep(t)
     pwm.deinit()
-def play_end():
+def play_win():
     for x in music_end:
+        play_sound(x)
+def play_lose():
+    for x in music_sad:
+        play_sound(x)
+def play_notify():
+    for x in music_notify:
         play_sound(x)

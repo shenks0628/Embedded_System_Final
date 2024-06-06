@@ -2,7 +2,7 @@ import xtools, utime, urequests, ujson
 from machine import RTC, UART, Pin, PWM, Timer
 from umqtt.simple import MQTTClient
 import random
-from sound import play_sound, play_end
+from sound import play_sound, play_win
 
 xtools.connect_wifi_led()
 
@@ -87,7 +87,6 @@ def gameEnd():
     opponent_check = False
     opponent_confirm = False
     current_status = 0
-    play_end()
     mode = WAITING
 
 def roundEnd():
@@ -108,18 +107,8 @@ def playerTurn():
     print("Player1 Turn")
     uart.write("TURN\r\n")
 
-def check_guess(cnt, num):
-    checker = 0
-    for i in yours:
-        if i == num:
-            checker += 1
-    for i in opponents:
-        if i == num:
-            checker += 1
-    return checker
-
 def player1WINDBUPD():
-    mes = DATABASE_URL + "diceGame/player1.json"
+    mes = DATABASE_URL + "/diceGame/player1.json"
     res = urequests.get(mes)
     r = res.text
     res.close()
@@ -130,12 +119,12 @@ def player1WINDBUPD():
         win += data["win"]
         lose += data["lose"]
     data = {"win": win, "lose": lose}
-    mes = DATABASE_URL + "diceGame/player1.json"
+    mes = DATABASE_URL + "/diceGame/player1.json"
     res = urequests.put(mes, json=data)
     res.close()
 
 def player1LoseDBUPD():
-    mes = DATABASE_URL + "diceGame/player1.json"
+    mes = DATABASE_URL + "/diceGame/player1.json"
     res = urequests.get(mes)
     r = res.text
     res.close()
@@ -146,7 +135,7 @@ def player1LoseDBUPD():
         win += data["win"]
         lose += data["lose"]
     data = {"win": win, "lose": lose}
-    mes = DATABASE_URL + "diceGame/player1.json"
+    mes = DATABASE_URL + "/diceGame/player1.json"
     res = urequests.put(mes, json=data)
     res.close()
 
@@ -171,7 +160,7 @@ def sub_cb(topic, msg):
     msg = str(msg)
     if topic == b"shen115/feeds/status":
         if msg == "PLAYER2 READY":
-            opponents.clear()
+            # opponents.clear()
             opponent_ready = True
             if opponent_ready and mode == READY:
                 print("GAME START")
@@ -179,7 +168,7 @@ def sub_cb(topic, msg):
                 print("PLAYER1 NUMBERS SENT")
                 mode = WAIT_CHECK
         elif msg == "PLAYER2 READY FOR NEXT":
-            opponents.clear()
+            # opponents.clear()
             opponent_ready = True
             if opponent_ready and mode == READY:
                 print("ROUND START")
@@ -227,6 +216,7 @@ def sub_cb(topic, msg):
                     opponentHP -= 1
                     if opponentHP == 0:
                         gameEnd()
+                        play_win()
                         player1WINDBUPD()
                     else:
                         roundEnd()
@@ -237,7 +227,7 @@ def sub_cb(topic, msg):
                         player1LoseDBUPD()
                     else:
                         roundEnd()
-    elif topic == opponent_num_topic:
+    elif topic == b"shen115/feeds/player2-num":
         opponents.clear()
         for i in msg:
             opponents.append(int(i))

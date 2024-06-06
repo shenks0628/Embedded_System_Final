@@ -163,7 +163,7 @@ def lose(checker, num):
     current_status = -1
 
 def sub_cb(topic, msg):
-    global mode, opponent_ready, current_guess, opponents, opponent_check, current_status, opponent_confirm, yourHP, opponentHP
+    global mode, opponent_ready, current_guess, opponents, opponent_check, current_status, opponent_confirm, yourHP, opponentHP, yours
     msg = msg.decode()
     print(msg)
     msg = str(msg)
@@ -204,7 +204,16 @@ def sub_cb(topic, msg):
             else:
                 cnt = int(current_guess[0])
             num = int(current_guess[1])
-            checker = check_guess(cnt, num)
+            checker = 0
+            for i in yours:
+                if i == num:
+                    checker += 1
+            for i in opponents:
+                if i == num:
+                    checker += 1
+            print(f"CNT: {cnt}, NUM: {num}, CHECKER: {checker}")
+            print("YOUR NUMBERS:", yours)
+            print("OPPONENT NUMBERS:", opponents)
             if checker >= cnt:
                 win(checker, num)
             elif checker < cnt:
@@ -299,7 +308,16 @@ while True:
                 else:
                     cnt = int(current_guess[0])
                 num = int(current_guess[1])
-                checker = check_guess(cnt, num)
+                checker = 0
+                for i in yours:
+                    if i == num:
+                        checker += 1
+                for i in opponents:
+                    if i == num:
+                        checker += 1
+                print(f"CNT: {cnt}, NUM: {num}, CHECKER: {checker}")
+                print("YOUR NUMBERS:", yours)
+                print("OPPONENT NUMBERS:", opponents)
                 if checker >= cnt:
                     lose(checker, num)
                 elif checker < cnt:

@@ -128,7 +128,7 @@ def player2WINDBUPD():
         win += data["win"]
         lose += data["lose"]
     data = {"win": win, "lose": lose}
-    mes = DATABASE_URL + "/player2.json"
+    mes = DATABASE_URL + "diceGame/player2.json"
     res = urequests.put(mes, json=data)
     res.close()
 
@@ -144,7 +144,7 @@ def player2LOSEDBUPD():
         win += data["win"]
         lose += data["lose"]
     data = {"win": win, "lose": lose}
-    mes = DATABASE_URL + "/player2.json"
+    mes = DATABASE_URL + "diceGame/player2.json"
     res = urequests.put(mes, json=data)
     res.close()
 

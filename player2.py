@@ -2,6 +2,7 @@ import xtools, utime, urequests, ujson
 from machine import RTC, UART, Pin, PWM, Timer
 from umqtt.simple import MQTTClient
 import random
+from sound import play_sound, play_end
 
 xtools.connect_wifi_led()
 
@@ -86,6 +87,7 @@ def gameEnd():
     opponent_check = False
     opponent_confirm = False
     current_status = 0
+    play_end()
     mode = WAITING
 
 def roundEnd():

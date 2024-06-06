@@ -109,6 +109,6 @@ def play_sound(i): # 播音
             pwm = PWM(pin, freq = 1976, duty = 512)
     utime.sleep(t)
     pwm.deinit()
-def play_end:
+def play_end():
     for x in music_end:
         play_sound(x)

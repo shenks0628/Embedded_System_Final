@@ -28,6 +28,24 @@ bit catchable = 0;
 #define END 3
 
 /*------------------------------------------------
+			顯示函數，用於動態掃瞄數碼管
+------------------------------------------------*/
+void Display(unsigned char FirstBit, unsigned char Num) {
+	static unsigned char i = 0;
+	DataPort = 0;   //清空資料，防止有交替重影
+	LATCH1 = 1;     //段鎖存
+	LATCH1 = 0;
+	DataPort = dofly_WeiMa[i + FirstBit]; //取位碼 
+	LATCH2 = 1;     //位鎖存
+	LATCH2 = 0;
+	DataPort = TempData[i]; //取顯示資料，段碼
+	LATCH1 = 1;     //段鎖存
+	LATCH1 = 0;
+	i++;
+	if (i == Num)
+		i = 0;
+}
+/*------------------------------------------------
 				計時器初始化副程式
 ------------------------------------------------*/
 void Init_Timer0(void) {
@@ -35,28 +53,6 @@ void Init_Timer0(void) {
 	EA = 1;      //總中斷打開
 	ET0 = 1;     //計時器中斷打開
 	TR0 = 1;     //計時器開關打開
-}
-/*------------------------------------------------
-			顯示函數，用於動態掃瞄數碼管
-------------------------------------------------*/
-void Display(unsigned char FirstBit, unsigned char Num) {
-	static unsigned char i = 0;
-
-	DataPort = 0;   //清空資料，防止有交替重影
-	LATCH1 = 1;     //段鎖存
-	LATCH1 = 0;
-
-	DataPort = dofly_WeiMa[i + FirstBit]; //取位碼 
-	LATCH2 = 1;     //位鎖存
-	LATCH2 = 0;
-
-	DataPort = TempData[i]; //取顯示資料，段碼
-	LATCH1 = 1;     //段鎖存
-	LATCH1 = 0;
-
-	i++;
-	if (i == Num)
-		i = 0;
 }
 /*------------------------------------------------
 				 計時器中斷副程式
@@ -69,11 +65,11 @@ void Timer0_isr(void) interrupt 1
 	TF1 = 0;
 }
 
-char itos(word x) {
+char itoc(word x) {//int to char
 	if (x == 10) return 'A';
 	else return x + '0';
 }
-int ctoi(char x) {
+int ctoi(char x) {//char to int
 	if (x == 'A') return 10;
 	else return x - '0';
 }
@@ -118,7 +114,13 @@ void main(void) {
 	Init_Timer0();
 	ES = 1;// 打開串口中斷
 	while (1) {
-		if (state == WAIT) {// 等待UART輸入
+		if (state == PREPARE) {
+			key = wait_input(7);
+			while (key != 15) key = wait_input(7);
+			UART_SendStr("READY");// 準備完成
+			state = WAIT;
+		}
+		else if (state == WAIT) {// 等待UART輸入
 			if (TempData[0] != 0x38) {
 				clearData();//清屏
 				// 顯示LOAd...
@@ -219,8 +221,8 @@ void main(void) {
 						key = wait_input(7);
 						while (key == 0xff) key = wait_input(7);
 					}
-					guess[0] = itos(guess_cnt);
-					guess[1] = itos(guess_num);
+					guess[0] = itoc(guess_cnt);
+					guess[1] = itoc(guess_num);
 					guess[2] = '\0';
 					if ((guess_cnt == oppo_guess_cnt && guess_num <= oppo_guess_num) || (guess_cnt < oppo_guess_cnt)) {
 						//顯示Error
@@ -251,12 +253,6 @@ void main(void) {
 				else if (key == 12) switch_show();
 			}
 		}
-		else if (state == PREPARE) {
-			key = wait_input(7);
-			while (key != 15) key = wait_input(7);
-			UART_SendStr("READY");// 準備完成
-			state = WAIT;
-		}
 		else if (state == END) {
 			key = wait_input(7);
 			while (!(key == 15 || key == 14)) key = wait_input(7);
@@ -266,5 +262,6 @@ void main(void) {
 				state = PREPARE;
 			}
 		}
+		DelayMs(10);
 	}
 }

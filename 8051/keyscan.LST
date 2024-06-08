@@ -1,4 +1,4 @@
-C51 COMPILER V7.08   KEYSCAN                                                               06/06/2024 18:09:20 PAGE 1   
+C51 COMPILER V7.08   KEYSCAN                                                               06/08/2024 16:22:08 PAGE 1   
 
 
 C51 COMPILER V7.08, COMPILATION OF MODULE KEYSCAN
@@ -13,79 +13,77 @@ line level    source
    4          
    5          #define KeyPort P1 // 定義鍵盤埠
    6          
-   7          unsigned char KeyScan(void)  // 鍵盤掃瞄函數，使用行列逐級掃瞄法
-   8          {
-   9   1          unsigned char Val;
-  10   1          KeyPort = 0xf0; // 高四位置高，低四位拉低
-  11   1          if (KeyPort != 0xf0) // 表示有按鍵按下
-  12   1          {
-  13   2              DelayMs(10); // 去抖
-  14   2              if (KeyPort != 0xf0) { // 表示有按鍵按下
-  15   3                  KeyPort = 0xfe; // 檢測第一行
-  16   3                  if (KeyPort != 0xfe) {
-  17   4                      Val = KeyPort & 0xf0;
-  18   4                      Val += 0x0e;
-  19   4                      while (KeyPort != 0xfe);
-  20   4                      DelayMs(10); // 去抖
-  21   4                      while (KeyPort != 0xfe);
-  22   4                      return Val;
-  23   4                  }
-  24   3                  KeyPort = 0xfd; // 檢測第二行
-  25   3                  if (KeyPort != 0xfd) {
-  26   4                      Val = KeyPort & 0xf0;
-  27   4                      Val += 0x0d;
-  28   4                      while (KeyPort != 0xfd);
-  29   4                      DelayMs(10); // 去抖
-  30   4                      while (KeyPort != 0xfd);
-  31   4                      return Val;
-  32   4                  }
-  33   3                  KeyPort = 0xfb; // 檢測第三行
-  34   3                  if (KeyPort != 0xfb) {
-  35   4                      Val = KeyPort & 0xf0;
-  36   4                      Val += 0x0b;
-  37   4                      while (KeyPort != 0xfb);
-  38   4                      DelayMs(10); // 去抖
-  39   4                      while (KeyPort != 0xfb);
-  40   4                      return Val;
-  41   4                  }
-  42   3                  KeyPort = 0xf7; // 檢測第四行
-  43   3                  if (KeyPort != 0xf7) {
-  44   4                      Val = KeyPort & 0xf0;
-  45   4                      Val += 0x07;
-  46   4                      while (KeyPort != 0xf7);
-  47   4                      DelayMs(10); // 去抖
-  48   4                      while (KeyPort != 0xf7);
-  49   4                      return Val;
-  50   4                  }
-  51   3              }
-  52   2          }
-  53   1          return 0xff;
-  54   1      }
-  55          
-C51 COMPILER V7.08   KEYSCAN                                                               06/06/2024 18:09:20 PAGE 2   
+   7          unsigned char KeyScan(void) { // 鍵盤掃瞄函數，使用行列逐級掃瞄法
+   8   1          unsigned char Val;
+   9   1          KeyPort = 0xf0; // 高四位置高，低四位拉低
+  10   1          if (KeyPort != 0xf0) // 表示有按鍵按下
+  11   1          {
+  12   2              DelayMs(10); // 去抖
+  13   2              if (KeyPort != 0xf0) { // 表示有按鍵按下
+  14   3                  KeyPort = 0xfe; // 檢測第一行
+  15   3                  if (KeyPort != 0xfe) {
+  16   4                      Val = KeyPort & 0xf0;
+  17   4                      Val += 0x0e;
+  18   4                      while (KeyPort != 0xfe);
+  19   4                      DelayMs(10); // 去抖
+  20   4                      while (KeyPort != 0xfe);
+  21   4                      return Val;
+  22   4                  }
+  23   3                  KeyPort = 0xfd; // 檢測第二行
+  24   3                  if (KeyPort != 0xfd) {
+  25   4                      Val = KeyPort & 0xf0;
+  26   4                      Val += 0x0d;
+  27   4                      while (KeyPort != 0xfd);
+  28   4                      DelayMs(10); // 去抖
+  29   4                      while (KeyPort != 0xfd);
+  30   4                      return Val;
+  31   4                  }
+  32   3                  KeyPort = 0xfb; // 檢測第三行
+  33   3                  if (KeyPort != 0xfb) {
+  34   4                      Val = KeyPort & 0xf0;
+  35   4                      Val += 0x0b;
+  36   4                      while (KeyPort != 0xfb);
+  37   4                      DelayMs(10); // 去抖
+  38   4                      while (KeyPort != 0xfb);
+  39   4                      return Val;
+  40   4                  }
+  41   3                  KeyPort = 0xf7; // 檢測第四行
+  42   3                  if (KeyPort != 0xf7) {
+  43   4                      Val = KeyPort & 0xf0;
+  44   4                      Val += 0x07;
+  45   4                      while (KeyPort != 0xf7);
+  46   4                      DelayMs(10); // 去抖
+  47   4                      while (KeyPort != 0xf7);
+  48   4                      return Val;
+  49   4                  }
+  50   3              }
+  51   2          }
+  52   1          return 0xff;
+  53   1      }
+  54          unsigned char KeyPro(void) {
+  55   1          switch (KeyScan()) {
+C51 COMPILER V7.08   KEYSCAN                                                               06/08/2024 16:22:08 PAGE 2   
 
-  56          unsigned char KeyPro(void) {
-  57   1          switch (KeyScan()) {
-  58   2          case 0x7e:return 0; break; // 0 按下相應的鍵顯示相對應的碼值
-  59   2          case 0x7d:return 1; break; // 1
-  60   2          case 0x7b:return 2; break; // 2
-  61   2          case 0x77:return 3; break; // 3
-  62   2          case 0xbe:return 4; break; // 4
-  63   2          case 0xbd:return 5; break; // 5
-  64   2          case 0xbb:return 6; break; // 6
-  65   2          case 0xb7:return 7; break; // 7
-  66   2          case 0xde:return 8; break; // 8
-  67   2          case 0xdd:return 9; break; // 9
-  68   2          case 0xdb:return 10; break; // a
-  69   2          case 0xd7:return 11; break; // 
-  70   2          case 0xee:return 12; break; // 
-  71   2          case 0xed:return 13; break; // 
-  72   2          case 0xeb:return 14; break; // 
-  73   2          case 0xe7:return 15; break; // 準備
-  74   2          default:return 0xff; break;
-  75   2          }
-  76   1      }
-  77          
+  56   2          case 0x7e:return 0; break; // 0 按下相應的鍵顯示相對應的碼值
+  57   2          case 0x7d:return 1; break; // 1
+  58   2          case 0x7b:return 2; break; // 2
+  59   2          case 0x77:return 3; break; // 3
+  60   2          case 0xbe:return 4; break; // 4
+  61   2          case 0xbd:return 5; break; // 5
+  62   2          case 0xbb:return 6; break; // 6
+  63   2          case 0xb7:return 7; break; // 7
+  64   2          case 0xde:return 8; break; // 8
+  65   2          case 0xdd:return 9; break; // 9
+  66   2          case 0xdb:return 10; break; // a
+  67   2          case 0xd7:return 11; break; // 
+  68   2          case 0xee:return 12; break; // 
+  69   2          case 0xed:return 13; break; // 
+  70   2          case 0xeb:return 14; break; // 
+  71   2          case 0xe7:return 15; break; // 準備
+  72   2          default:return 0xff; break;
+  73   2          }
+  74   1      }
+  75          
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE

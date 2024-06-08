@@ -26,6 +26,8 @@
 ### Usage
 
 - ESP32
-須將 sound.py 上傳到 ESP32 裝置上，上傳完畢後即可開始使用 player1.py 或 player2.py。請切記一個玩家使用一個程式，請勿兩個都使用同一份。
+  - 須將 xtools.py, utime.py, urequests.py, sound.py 上傳到 ESP32 裝置上，上傳完畢後即可開始使用
+  - player1.py 或 player2.py。請切記一個玩家使用一個程式，請勿兩個都使用同一份。
 - 8051
-main.c 會引入 delay.h, keyscan.h, uart.h，函式定義請見 delay.c, keyscan.c, uart.c。
+  - main.c 會引入 delay.h, keyscan.h, uart.h，函式定義請見 delay.c, keyscan.c, uart.c。
+  - 矩陣鍵盤輸入，按下1-10，代表1-10，13鍵位在GUESS階段時可以切換顯示的內容，16鍵位為確認/叫停的按鈕

@@ -14,7 +14,6 @@ void DelayUs2x(unsigned char t) {
  0~255 這裡使用晶振12M，精確延時請使用彙編
 ------------------------------------------------*/
 void DelayMs(unsigned char t) {
-
     while (t--) {
         //大致延時1mS
         DelayUs2x(245);

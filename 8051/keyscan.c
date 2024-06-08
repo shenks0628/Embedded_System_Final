@@ -4,8 +4,7 @@
 
 #define KeyPort P1 // 定義鍵盤埠
 
-unsigned char KeyScan(void)  // 鍵盤掃瞄函數，使用行列逐級掃瞄法
-{
+unsigned char KeyScan(void) { // 鍵盤掃瞄函數，使用行列逐級掃瞄法
     unsigned char Val;
     KeyPort = 0xf0; // 高四位置高，低四位拉低
     if (KeyPort != 0xf0) // 表示有按鍵按下
@@ -52,7 +51,6 @@ unsigned char KeyScan(void)  // 鍵盤掃瞄函數，使用行列逐級掃瞄法
     }
     return 0xff;
 }
-
 unsigned char KeyPro(void) {
     switch (KeyScan()) {
     case 0x7e:return 0; break; // 0 按下相應的鍵顯示相對應的碼值
@@ -67,10 +65,10 @@ unsigned char KeyPro(void) {
     case 0xdd:return 9; break; // 9
     case 0xdb:return 10; break; // a
     case 0xd7:return 11; break; // 
-    case 0xee:return 12; break; // 
+    case 0xee:return 12; break; // 切換顯示
     case 0xed:return 13; break; // 
     case 0xeb:return 14; break; // 
-    case 0xe7:return 15; break; // 準備
+    case 0xe7:return 15; break; // 確認/叫停
     default:return 0xff; break;
     }
 }

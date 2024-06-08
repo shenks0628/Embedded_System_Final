@@ -52,10 +52,10 @@ yourHP = 3
 opponentHP = 3
 current_guess = []
 
-def generate_random_numbers():
+def generate_random_numbers(): # 產生隨機數字
     return [random.randint(1, 6) for _ in range(5)]
 
-def gameStart():
+def gameStart(): # 遊戲開始
     global yourHP, opponentHP, yours
     yourHP = 3
     opponentHP = 3
@@ -63,52 +63,54 @@ def gameStart():
     numStr = ""
     for i in yours:
         numStr += str(i)
-    uart.write(numStr + "\r\n")
+    uart.write(numStr + "\r\n") # 透過 UART 傳送數字
     print("Numbers sent: ", numStr)
     client.publish(your_num_topic, numStr)
 
-def roundStart():
+def roundStart(): # 回合開始
     global yours
     yours = generate_random_numbers()
     numStr = ""
     for i in yours:
         numStr += str(i)
-    uart.write(numStr + "\r\n")
+    uart.write(numStr + "\r\n") # 透過 UART 傳送數字
     print("Numbers sent: ", numStr)
     client.publish(your_num_topic, numStr)
 
-def gameEnd():
+def gameEnd(): # 遊戲結束
     global mode, yourHP, opponentHP, opponent_ready, opponent_check, current_status, opponent_confirm
     print("GAME END")
     print("YOUR HP: ", yourHP)
     print("OPPONENT HP: ", opponentHP)
-    uart.write(f"GAME:{yourHP}{opponentHP}\r\n")
+    uart.write(f"GAME:{yourHP}{opponentHP}\r\n") # 透過 UART 傳送遊戲結果
+    # 重置遊戲狀態
     opponent_ready = False
     opponent_check = False
     opponent_confirm = False
     current_status = 0
     mode = WAITING
 
-def roundEnd():
+def roundEnd(): # 回合結束
     global mode, yourHP, opponentHP, opponent_ready, opponent_check, current_status, opponent_confirm
     print("ROUND END")
     print("YOUR HP: ", yourHP)
     print("OPPONENT HP: ", opponentHP)
-    uart.write(f"GAME:{yourHP}{opponentHP}\r\n")
+    uart.write(f"GAME:{yourHP}{opponentHP}\r\n") # 透過 UART 傳送遊戲結果
+    # 重置回合狀態
     opponent_ready = False
     opponent_check = False
     opponent_confirm = False
     current_status = 0
     mode = WAIT_NEXT
 
-def playerTurn():
+def playerTurn(): # 玩家回合
     global mode
     mode = YOUR_TURN
     play_notify()
     print("Player1 Turn")
     uart.write("TURN\r\n")
 
-def player1WINDBUPD():
+def player1WINDBUPD(): # 更新玩家1勝利次數
     mes = DATABASE_URL + "/diceGame/player1.json"
     res = urequests.get(mes)
     r = res.text
@@ -124,7 +126,7 @@ def player1WINDBUPD():
     res = urequests.put(mes, json=data)
     res.close()
 
-def player1LoseDBUPD():
+def player1LoseDBUPD(): # 更新玩家1失敗次數
     mes = DATABASE_URL + "/diceGame/player1.json"
     res = urequests.get(mes)
     r = res.text
@@ -140,64 +142,63 @@ def player1LoseDBUPD():
     res = urequests.put(mes, json=data)
     res.close()
 
-def win(checker, num):
+def win(checker, num): # 玩家勝利
     global mode, yourHP, opponentHP, current_status
     print("PLAYER1 WINS")
-    uart.write(f"WIN:{checker}{num}\r\n")
+    uart.write(f"WIN:{checker}{num}\r\n") # 透過 UART 傳送勝利訊息
     mode = WAIT_CONFIRM
-    current_status = 1
+    current_status = 1 # 儲存勝利狀態
 
-def lose(checker, num):
+def lose(checker, num): # 玩家失敗
     global mode, yourHP, opponentHP, current_status
     print("PLAYER2 WINS")
-    uart.write(f"LOSE:{checker}{num}\r\n")
+    uart.write(f"LOSE:{checker}{num}\r\n") # 透過 UART 傳送失敗訊息
     mode = WAIT_CONFIRM
-    current_status = -1
+    current_status = -1 # 儲存失敗狀態
 
-def sub_cb(topic, msg):
+def sub_cb(topic, msg): # 訂閱回調函數
     global mode, opponent_ready, current_guess, opponents, opponent_check, current_status, opponent_confirm, yourHP, opponentHP, yours
     msg = msg.decode()
     print(msg)
     msg = str(msg)
-    if topic == b"shen115/feeds/status":
-        if msg == "PLAYER2 READY":
-            # opponents.clear()
+    if topic == b"shen115/feeds/status": # 接收對手狀態
+        if msg == "PLAYER2 READY": # 對手準備好
             opponent_ready = True
-            if opponent_ready and mode == READY:
+            if opponent_ready and mode == READY: # 如果對手準備好且遊戲狀態為 READY（自己也準備好）
                 print("GAME START")
                 gameStart()
                 print("PLAYER1 NUMBERS SENT")
                 mode = WAIT_CHECK
-        elif msg == "PLAYER2 READY FOR NEXT":
-            # opponents.clear()
+        elif msg == "PLAYER2 READY FOR NEXT": # 對手準備好下一回合
             opponent_ready = True
-            if opponent_ready and mode == READY:
+            if opponent_ready and mode == READY: # 如果對手準備好且遊戲狀態為 READY（自己也準備好）
                 print("ROUND START")
                 roundStart()
                 print("PLAYER1 NUMBERS SENT")
                 mode = WAIT_CHECK
-        elif msg == "PLAYER2 CHECK":
+        elif msg == "PLAYER2 CHECK": # 對手確認
             opponent_check = True
-            if opponent_check and mode == CHECK:
+            if opponent_check and mode == CHECK: # 如果對手確認且遊戲狀態為 CHECK（自己也確認）
                 playerTurn()
-        elif msg[:13] == "PLAYER2 GUESS":
+        elif msg[:13] == "PLAYER2 GUESS": # 對手猜測
+            # 存入此時猜測數字
             current_guess.clear()
             current_guess.append(msg[15])
             current_guess.append(msg[16])
             print("PLAYER2 GUESS:", msg[15:])
-            uart.write(f"OPPO:{msg[15:]}\r\n")
-            play_notify()
+            uart.write(f"OPPO:{msg[15:]}\r\n") # 透過 UART 傳送對手猜測數字
+            play_notify() # 播放提示音
             mode = YOUR_TURN
-        elif msg == "PLAYER2 CALLS STOP":
+        elif msg == "PLAYER2 CALLS STOP": # 對手喊停
             print("PLAYER2 CALLS STOP")
             mode = STOP
             cnt = 0
-            if current_guess[0] == 'A':
+            if current_guess[0] == 'A': # 如果猜測的數字為 A，則代表為 10
                 cnt = 10
-            else:
+            else: # 否則取第一個字元轉換為整數
                 cnt = int(current_guess[0])
-            num = int(current_guess[1])
-            checker = 0
+            num = int(current_guess[1]) # 取第二個字元轉換為整數
+            checker = 0 # 計算猜測的數字是否符合
             for i in yours:
                 if i == num:
                     checker += 1
@@ -207,30 +208,30 @@ def sub_cb(topic, msg):
             print(f"CNT: {cnt}, NUM: {num}, CHECKER: {checker}")
             print("YOUR NUMBERS:", yours)
             print("OPPONENT NUMBERS:", opponents)
-            if checker >= cnt:
+            if checker >= cnt: # 如果自己猜測的數字符合，自己勝利
                 win(checker, num)
-            elif checker < cnt:
+            elif checker < cnt: # 如果自己猜測的數字不符合，自己失敗
                 lose(checker, num)
-        elif msg == "PLAYER2 CONFIRM":
+        elif msg == "PLAYER2 CONFIRM": # 對手確認
             opponent_confirm = True
-            if opponent_confirm and mode == CONFIRM:
-                if current_status == 1:
+            if opponent_confirm and mode == CONFIRM: # 如果對手確認且遊戲狀態為 CONFIRM（自己也確認）
+                if current_status == 1: # 如果狀態為勝利
                     opponentHP -= 1
-                    if opponentHP == 0:
+                    if opponentHP == 0: # 如果對手血量為 0，則遊戲結束
                         gameEnd()
-                        play_win()
+                        play_win() # 播放勝利音效
                         player1WINDBUPD()
-                    else:
+                    else: # 否則回合結束
                         roundEnd()
-                elif current_status == -1:
+                elif current_status == -1: # 如果狀態為失敗
                     yourHP -= 1
-                    if yourHP == 0:
+                    if yourHP == 0: # 如果自己血量為 0，則遊戲結束
                         gameEnd()
-                        play_lose()
+                        play_lose() # 播放失敗音效
                         player1LoseDBUPD()
-                    else:
+                    else: # 否則回合結束
                         roundEnd()
-    elif topic == b"shen115/feeds/player2-num":
+    elif topic == b"shen115/feeds/player2-num": # 接收對手數字
         opponents.clear()
         for i in msg:
             opponents.append(int(i))
@@ -245,67 +246,67 @@ print('MicroPython Ready...')  # 輸出訊息到終端機
 
 while True:
     client.check_msg()
-    if uart.any() > 0:
+    if uart.any() > 0: # 如果 UART 有資料
         msg = uart.readline()
-        if mode == WAITING and msg == b"READY":
+        if mode == WAITING and msg == b"READY": # 如果遊戲狀態為 WAITING 且收到 READY 訊息
             yours.clear()
-            client.publish(status_topic, b"PLAYER1 READY")
+            client.publish(status_topic, b"PLAYER1 READY") # 發布準備好訊息
             print("PLAYER1 READY")
             mode = READY
-            if opponent_ready and mode == READY:
+            if opponent_ready and mode == READY: # 如果對手準備好且遊戲狀態為 READY（自己也準備好）
                 print("GAME START")
                 gameStart()
                 print("PLAYER1 NUMBERS SENT")
                 mode = WAIT_CHECK
-        elif mode == WAIT_NEXT and msg == b"READY":
+        elif mode == WAIT_NEXT and msg == b"READY": # 如果遊戲狀態為 WAIT_NEXT 且收到 READY 訊息
             yours.clear()
-            client.publish(status_topic, b"PLAYER1 READY FOR NEXT")
+            client.publish(status_topic, b"PLAYER1 READY FOR NEXT") # 發布準備好下一回合訊息
             print("PLAYER1 READY FOR NEXT")
             mode = READY
-            if opponent_ready and mode == READY:
+            if opponent_ready and mode == READY: # 如果對手準備好且遊戲狀態為 READY（自己也準備好）
                 print("ROUND START")
                 roundStart()
                 print("PLAYER1 NUMBERS SENT")
                 mode = WAIT_CHECK
-        elif mode == WAIT_CHECK and msg == b"READY":
-            client.publish(status_topic, b"PLAYER1 CHECK")
+        elif mode == WAIT_CHECK and msg == b"READY": # 如果遊戲狀態為 WAIT_CHECK 且收到 READY 訊息
+            client.publish(status_topic, b"PLAYER1 CHECK") # 發布確認訊息
             print("PLAYER1 CHECK")
             mode = CHECK
-            if opponent_check and mode == CHECK:
+            if opponent_check and mode == CHECK: # 如果對手確認且遊戲狀態為 CHECK（自己也確認）
                 playerTurn()
         elif mode == WAIT_CONFIRM and msg == b"READY":
-            client.publish(status_topic, b"PLAYER1 CONFIRM")
+            client.publish(status_topic, b"PLAYER1 CONFIRM") # 發布確認訊息
             print("PLAYER1 CONFIRM")
             mode = CONFIRM
-            if opponent_confirm and mode == CONFIRM:
-                if current_status == 1:
+            if opponent_confirm and mode == CONFIRM: # 如果對手確認且遊戲狀態為 CONFIRM（自己也確認）
+                if current_status == 1: # 如果狀態為勝利
                     opponentHP -= 1
-                    if opponentHP == 0:
+                    if opponentHP == 0: # 如果對手血量為 0，則遊戲結束
                         gameEnd()
                         play_win()
                         player1WINDBUPD()
-                    else:
+                    else: # 否則回合結束
                         roundEnd()
-                elif current_status == -1:
+                elif current_status == -1: # 如果狀態為失敗
                     yourHP -= 1
-                    if yourHP == 0:
+                    if yourHP == 0: # 如果自己血量為 0，則遊戲結束
                         gameEnd()
                         play_lose()
                         player1LoseDBUPD()
-                    else:
+                    else: # 否則回合結束
                         roundEnd()
         elif mode == YOUR_TURN:
-            if msg == b"STOP":
-                client.publish(status_topic, b"PLAYER1 CALLS STOP")
+            if msg == b"STOP": # 喊停
+                client.publish(status_topic, b"PLAYER1 CALLS STOP") # 發布喊停訊息
                 print("PLAYER1 CALLS STOP")
                 mode = STOP
                 cnt = 0
-                if current_guess[0] == 'A':
+                if current_guess[0] == 'A': # 如果對手猜測的數字為 A，則代表為 10
                     cnt = 10
-                else:
+                else: # 否則取第一個字元轉換為整數
                     cnt = int(current_guess[0])
-                num = int(current_guess[1])
-                checker = 0
+                num = int(current_guess[1]) # 取第二個字元轉換為整數
+                checker = 0 # 計算猜測的數字是否符合
                 for i in yours:
                     if i == num:
                         checker += 1
@@ -315,18 +316,19 @@ while True:
                 print(f"CNT: {cnt}, NUM: {num}, CHECKER: {checker}")
                 print("YOUR NUMBERS:", yours)
                 print("OPPONENT NUMBERS:", opponents)
-                if checker >= cnt:
+                if checker >= cnt: # 如果對手猜測的數字符合，對手勝利
                     lose(checker, num)
-                elif checker < cnt:
+                elif checker < cnt: # 如果對手猜測的數字不符合，對手失敗
                     win(checker, num)
-            else:
+            else: # 猜測數字
                 msg = str(msg)
                 if len(msg) != 5:
                     continue
+                # 存入此時猜測數字
                 current_guess.clear()
                 current_guess.append(msg[2])
                 current_guess.append(msg[3])
-                client.publish(status_topic, b"PLAYER1 GUESS: " + bytes(msg[2], "utf-8") + bytes(msg[3], "utf-8"))
+                client.publish(status_topic, b"PLAYER1 GUESS: " + bytes(msg[2], "utf-8") + bytes(msg[3], "utf-8")) # 發布猜測數字
                 print(f"PLAYER1 GUESS: {msg[2]}{msg[3]}")
                 mode = OPPONENT_TURN
 

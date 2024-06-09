@@ -1,4 +1,4 @@
-C51 COMPILER V7.08   MAIN                                                                  06/09/2024 00:59:05 PAGE 1   
+C51 COMPILER V7.08   MAIN                                                                  06/09/2024 19:47:19 PAGE 1   
 
 
 C51 COMPILER V7.08, COMPILATION OF MODULE MAIN
@@ -62,7 +62,7 @@ line level    source
              -影響
   53   1              EA = 1;      //總中斷打開
   54   1              ET0 = 1;     //計時器中斷打開
-C51 COMPILER V7.08   MAIN                                                                  06/09/2024 00:59:05 PAGE 2   
+C51 COMPILER V7.08   MAIN                                                                  06/09/2024 19:47:19 PAGE 2   
 
   55   1              TR0 = 1;     //計時器開關打開
   56   1      }
@@ -122,169 +122,170 @@ line level    source
  110   1              byte key;
  111   1              word state = PREPARE, guess_cnt = 0, guess_num = 0;
  112   1              word oppo_guess_cnt = 0, oppo_guess_num = 1;
- 113   1              InitUART();
- 114   1              Init_Timer0();
- 115   1              ES = 1;// 打開串口中斷
- 116   1              while (1) {
-C51 COMPILER V7.08   MAIN                                                                  06/09/2024 00:59:05 PAGE 3   
+ 113   1              myLife = 3, oppoLife = 3;
+ 114   1              InitUART();
+ 115   1              Init_Timer0();
+ 116   1              ES = 1;// 打開串口中斷
+C51 COMPILER V7.08   MAIN                                                                  06/09/2024 19:47:19 PAGE 3   
 
- 117   2                      if (state == PREPARE) {
- 118   3                              key = wait_input(7);
- 119   3                              while (key != 16) key = wait_input(7);
- 120   3                              UART_SendStr("READY");// 準備完成
- 121   3                              state = WAIT;
- 122   3                      }
- 123   2                      else if (state == WAIT) {// 等待UART輸入
- 124   3                              if (TempData[0] != 0x38) {
- 125   4                                      clearData();//清屏
- 126   4                                      // 顯示LOAd...
- 127   4                                      TempData[0] = 0x38, TempData[1] = 0x3f;
- 128   4                                      TempData[2] = 0x77, TempData[3] = 0x5e;
- 129   4                                      TempData[4] = 0x80, TempData[5] = 0x80;
- 130   4                                      TempData[6] = 0x80;
- 131   4                              }
- 132   3                              if (rec_flag == 1) {// UART輸入
- 133   4                                      clearData();//清屏
- 134   4                                      buf[head] = '\0';
- 135   4                                      if (buf[0] == 'W') {// 猜對
- 136   5                                              // 顯示TrUE
- 137   5                                              TempData[0] = 0x78, TempData[1] = 0x50;
- 138   5                                              TempData[2] = 0x3e, TempData[3] = 0x79;
- 139   5                                              state = PREPARE;
- 140   5                                      }
- 141   4                                      else if (buf[0] == 'L') {// 猜錯
- 142   5                                              // 顯示FALSE
- 143   5                                              TempData[0] = 0x71, TempData[1] = 0x77;
- 144   5                                              TempData[2] = 0x38, TempData[3] = 0x6d;
- 145   5                                              TempData[4] = 0x79;
- 146   5                                              state = PREPARE;
- 147   5                                      }
- 148   4                                      else if (buf[0] == 'G') {// 每輪結束
- 149   5                                              // 顯示End  X-Y
- 150   5                                              myLife = ctoi(buf[5]);
- 151   5                                              oppoLife = ctoi(buf[6]);
- 152   5                                              TempData[0] = 0x79, TempData[1] = 0x54;
- 153   5                                              TempData[2] = 0x5e, TempData[5] = dofly_DuanMa[ctoi(buf[5])];
- 154   5                                              TempData[6] = 0x40, TempData[7] = dofly_DuanMa[ctoi(buf[6])];
- 155   5                                              if (ctoi(buf[5]) <= 0 || ctoi(buf[6]) <= 0)state = END;
- 156   5                                              else state = PREPARE;
- 157   5                                      }
- 158   4                                      else if (buf[0] == 'T') {// 輪到我猜
- 159   5                                              oppo_guess_cnt = 0, oppo_guess_num = 1;
- 160   5                                              state = GUESS;
- 161   5                                      }
- 162   4                                      else if (buf[0] == 'O') {// 接收對方猜「X個Y」
- 163   5                                              // 顯示OPPO X Y
- 164   5                                              TempData[0] = 0x3f, TempData[1] = 0x73;
- 165   5                                              TempData[2] = 0x73, TempData[3] = 0x3f;
- 166   5                                              oppo_guess_cnt = ctoi(buf[5]), oppo_guess_num = ctoi(buf[6]);
- 167   5                                              TempData[5] = dofly_DuanMa[oppo_guess_cnt];
- 168   5                                              TempData[7] = dofly_DuanMa[oppo_guess_num];
- 169   5                                              key = wait_input(7);
- 170   5                                              while (key != 16) key = wait_input(7);
- 171   5                                              clearData();//清屏
- 172   5                                              catchable = 1;//可以抓
- 173   5                                              state = GUESS;
- 174   5                                      }
- 175   4                                      else {// 得到我的數字
- 176   5                                              // 顯示我的數字
- 177   5                                              mynum[0] = ctoi(buf[0]);
- 178   5                                              mynum[1] = ctoi(buf[1]);
-C51 COMPILER V7.08   MAIN                                                                  06/09/2024 00:59:05 PAGE 4   
+ 117   1              while (1) {
+ 118   2                      if (state == PREPARE) {
+ 119   3                              key = wait_input(7);
+ 120   3                              while (key != 16) key = wait_input(7);
+ 121   3                              UART_SendStr("READY");// 準備完成
+ 122   3                              state = WAIT;
+ 123   3                      }
+ 124   2                      else if (state == WAIT) {// 等待UART輸入
+ 125   3                              if (TempData[0] != 0x38) {
+ 126   4                                      clearData();//清屏
+ 127   4                                      // 顯示LOAd...
+ 128   4                                      TempData[0] = 0x38, TempData[1] = 0x3f;
+ 129   4                                      TempData[2] = 0x77, TempData[3] = 0x5e;
+ 130   4                                      TempData[4] = 0x80, TempData[5] = 0x80;
+ 131   4                                      TempData[6] = 0x80;
+ 132   4                              }
+ 133   3                              if (rec_flag == 1) {// UART輸入
+ 134   4                                      clearData();//清屏
+ 135   4                                      buf[head] = '\0';
+ 136   4                                      if (buf[0] == 'W') {// 猜對
+ 137   5                                              // 顯示TrUE
+ 138   5                                              TempData[0] = 0x78, TempData[1] = 0x50;
+ 139   5                                              TempData[2] = 0x3e, TempData[3] = 0x79;
+ 140   5                                              state = PREPARE;
+ 141   5                                      }
+ 142   4                                      else if (buf[0] == 'L') {// 猜錯
+ 143   5                                              // 顯示FALSE
+ 144   5                                              TempData[0] = 0x71, TempData[1] = 0x77;
+ 145   5                                              TempData[2] = 0x38, TempData[3] = 0x6d;
+ 146   5                                              TempData[4] = 0x79;
+ 147   5                                              state = PREPARE;
+ 148   5                                      }
+ 149   4                                      else if (buf[0] == 'G') {// 每輪結束
+ 150   5                                              // 顯示End  X-Y
+ 151   5                                              myLife = ctoi(buf[5]);
+ 152   5                                              oppoLife = ctoi(buf[6]);
+ 153   5                                              TempData[0] = 0x79, TempData[1] = 0x54;
+ 154   5                                              TempData[2] = 0x5e, TempData[5] = dofly_DuanMa[ctoi(buf[5])];
+ 155   5                                              TempData[6] = 0x40, TempData[7] = dofly_DuanMa[ctoi(buf[6])];
+ 156   5                                              if (ctoi(buf[5]) <= 0 || ctoi(buf[6]) <= 0)state = END;
+ 157   5                                              else state = PREPARE;
+ 158   5                                      }
+ 159   4                                      else if (buf[0] == 'T') {// 輪到我猜
+ 160   5                                              oppo_guess_cnt = 0, oppo_guess_num = 1;
+ 161   5                                              state = GUESS;
+ 162   5                                      }
+ 163   4                                      else if (buf[0] == 'O') {// 接收對方猜「X個Y」
+ 164   5                                              // 顯示OPPO X Y
+ 165   5                                              TempData[0] = 0x3f, TempData[1] = 0x73;
+ 166   5                                              TempData[2] = 0x73, TempData[3] = 0x3f;
+ 167   5                                              oppo_guess_cnt = ctoi(buf[5]), oppo_guess_num = ctoi(buf[6]);
+ 168   5                                              TempData[5] = dofly_DuanMa[oppo_guess_cnt];
+ 169   5                                              TempData[7] = dofly_DuanMa[oppo_guess_num];
+ 170   5                                              key = wait_input(7);
+ 171   5                                              while (key != 16) key = wait_input(7);
+ 172   5                                              clearData();//清屏
+ 173   5                                              catchable = 1;//可以抓
+ 174   5                                              state = GUESS;
+ 175   5                                      }
+ 176   4                                      else {// 得到我的數字
+ 177   5                                              // 顯示我的數字
+ 178   5                                              mynum[0] = ctoi(buf[0]);
+C51 COMPILER V7.08   MAIN                                                                  06/09/2024 19:47:19 PAGE 4   
 
- 179   5                                              mynum[2] = ctoi(buf[2]);
- 180   5                                              mynum[3] = ctoi(buf[3]);
- 181   5                                              mynum[4] = ctoi(buf[4]);
- 182   5                                              TempData[0] = dofly_DuanMa[mynum[0]];
- 183   5                                              TempData[1] = dofly_DuanMa[mynum[1]];
- 184   5                                              TempData[2] = dofly_DuanMa[mynum[2]];
- 185   5                                              TempData[3] = dofly_DuanMa[mynum[3]];
- 186   5                                              TempData[4] = dofly_DuanMa[mynum[4]];
- 187   5                                              state = PREPARE;
- 188   5                                      }
- 189   4                                      rec_flag = 0;
- 190   4                                      head = 0;
- 191   4                              }
- 192   3                      }
- 193   2                      else if (state == GUESS) {// 猜測階段
- 194   3                              while (state == GUESS) {
- 195   4                                      if (TempData[0] != 0x6f) {
- 196   5                                              clearData();
- 197   5                                              // 顯示GUESS 
- 198   5                                              TempData[0] = 0x6f, TempData[1] = 0x3e;
- 199   5                                              TempData[2] = 0x79, TempData[3] = 0x6d;
- 200   5                                              TempData[4] = 0x6d;
- 201   5                                      }
- 202   4                                      key = KeyPro();
- 203   4                                      if (key >= 1 && key <= 10) {
- 204   5                                              while (key != 16) {
- 205   6                                                      if (key >= 1 && key <= 10) guess_cnt = key;
- 206   6                                                      else if (key == 13) switch_show();
- 207   6                                                      TempData[5] = dofly_DuanMa[guess_cnt];
- 208   6                                                      key = KeyPro();
- 209   6                                                      while (key == 0xff) key = wait_input(5);
- 210   6                                              }
- 211   5                                              TempData[6] = 0x40;
- 212   5                                              key = KeyPro();
- 213   5                                              while (!(key >= 1 && key <= 6)) {
- 214   6                                                      key = KeyPro();
- 215   6                                                      if (key == 13) switch_show();
- 216   6                                              }
- 217   5                                              while (key != 16) {
- 218   6                                                      if (key >= 1 && key <= 6) guess_num = key;
- 219   6                                                      else if (key == 13) switch_show();
- 220   6                                                      TempData[7] = dofly_DuanMa[guess_num];
- 221   6                                                      key = wait_input(7);
- 222   6                                                      while (key == 0xff) key = wait_input(7);
- 223   6                                              }
- 224   5                                              guess[0] = itoc(guess_cnt);
- 225   5                                              guess[1] = itoc(guess_num);
- 226   5                                              guess[2] = '\0';
- 227   5                                              if ((guess_cnt == oppo_guess_cnt && guess_num <= oppo_guess_num) || (guess_cnt < oppo_guess_cnt)) {
- 228   6                                                      //顯示Error
- 229   6                                                      TempData[0] = 0x79, TempData[1] = 0x50;
- 230   6                                                      TempData[2] = 0x50, TempData[3] = 0x5c;
- 231   6                                                      TempData[4] = 0x50;
- 232   6                                                      key = wait_input(7);
- 233   6                                                      while (key != 16) key = wait_input(7);
- 234   6                                                      clearData();
- 235   6                                                      // 顯示OPPO X Y
- 236   6                                                      TempData[0] = 0x3f, TempData[1] = 0x73;
- 237   6                                                      TempData[2] = 0x73, TempData[3] = 0x3f;
- 238   6                                                      oppo_guess_cnt = ctoi(buf[5]), oppo_guess_num = ctoi(buf[6]);
- 239   6                                                      TempData[5] = dofly_DuanMa[oppo_guess_cnt];
- 240   6                                                      TempData[7] = dofly_DuanMa[oppo_guess_num];
-C51 COMPILER V7.08   MAIN                                                                  06/09/2024 00:59:05 PAGE 5   
+ 179   5                                              mynum[1] = ctoi(buf[1]);
+ 180   5                                              mynum[2] = ctoi(buf[2]);
+ 181   5                                              mynum[3] = ctoi(buf[3]);
+ 182   5                                              mynum[4] = ctoi(buf[4]);
+ 183   5                                              TempData[0] = dofly_DuanMa[mynum[0]];
+ 184   5                                              TempData[1] = dofly_DuanMa[mynum[1]];
+ 185   5                                              TempData[2] = dofly_DuanMa[mynum[2]];
+ 186   5                                              TempData[3] = dofly_DuanMa[mynum[3]];
+ 187   5                                              TempData[4] = dofly_DuanMa[mynum[4]];
+ 188   5                                              state = PREPARE;
+ 189   5                                      }
+ 190   4                                      rec_flag = 0;
+ 191   4                                      head = 0;
+ 192   4                              }
+ 193   3                      }
+ 194   2                      else if (state == GUESS) {// 猜測階段
+ 195   3                              while (state == GUESS) {
+ 196   4                                      if (TempData[0] != 0x6f) {
+ 197   5                                              clearData();
+ 198   5                                              // 顯示GUESS 
+ 199   5                                              TempData[0] = 0x6f, TempData[1] = 0x3e;
+ 200   5                                              TempData[2] = 0x79, TempData[3] = 0x6d;
+ 201   5                                              TempData[4] = 0x6d;
+ 202   5                                      }
+ 203   4                                      key = KeyPro();
+ 204   4                                      if (key >= 1 && key <= 10) {
+ 205   5                                              while (key != 16) {
+ 206   6                                                      if (key >= 1 && key <= 10) guess_cnt = key;
+ 207   6                                                      else if (key == 13) switch_show();
+ 208   6                                                      TempData[5] = dofly_DuanMa[guess_cnt];
+ 209   6                                                      key = KeyPro();
+ 210   6                                                      while (key == 0xff) key = wait_input(5);
+ 211   6                                              }
+ 212   5                                              TempData[6] = 0x40;
+ 213   5                                              key = KeyPro();
+ 214   5                                              while (!(key >= 1 && key <= 6)) {
+ 215   6                                                      key = KeyPro();
+ 216   6                                                      if (key == 13) switch_show();
+ 217   6                                              }
+ 218   5                                              while (key != 16) {
+ 219   6                                                      if (key >= 1 && key <= 6) guess_num = key;
+ 220   6                                                      else if (key == 13) switch_show();
+ 221   6                                                      TempData[7] = dofly_DuanMa[guess_num];
+ 222   6                                                      key = wait_input(7);
+ 223   6                                                      while (key == 0xff) key = wait_input(7);
+ 224   6                                              }
+ 225   5                                              guess[0] = itoc(guess_cnt);
+ 226   5                                              guess[1] = itoc(guess_num);
+ 227   5                                              guess[2] = '\0';
+ 228   5                                              if ((guess_cnt == oppo_guess_cnt && guess_num <= oppo_guess_num) || (guess_cnt < oppo_guess_cnt)) {
+ 229   6                                                      //顯示Error
+ 230   6                                                      TempData[0] = 0x79, TempData[1] = 0x50;
+ 231   6                                                      TempData[2] = 0x50, TempData[3] = 0x5c;
+ 232   6                                                      TempData[4] = 0x50;
+ 233   6                                                      key = wait_input(7);
+ 234   6                                                      while (key != 16) key = wait_input(7);
+ 235   6                                                      clearData();
+ 236   6                                                      // 顯示OPPO X Y
+ 237   6                                                      TempData[0] = 0x3f, TempData[1] = 0x73;
+ 238   6                                                      TempData[2] = 0x73, TempData[3] = 0x3f;
+ 239   6                                                      oppo_guess_cnt = ctoi(buf[5]), oppo_guess_num = ctoi(buf[6]);
+ 240   6                                                      TempData[5] = dofly_DuanMa[oppo_guess_cnt];
+C51 COMPILER V7.08   MAIN                                                                  06/09/2024 19:47:19 PAGE 5   
 
- 241   6                                                      key = wait_input(7);
- 242   6                                                      while (key != 16) key = wait_input(7);
- 243   6                                                      continue;
- 244   6                                              }
- 245   5                                              UART_SendStr(guess);// 傳送猜測
- 246   5                                              state = WAIT;
- 247   5                                      }
- 248   4                                      else if (key == 16 && catchable) {// 抓
- 249   5                                              UART_SendStr("STOP");
- 250   5                                              catchable = 0;
- 251   5                                              state = WAIT;
- 252   5                                      }
- 253   4                                      else if (key == 13) switch_show();
- 254   4                              }
- 255   3                      }
- 256   2                      else if (state == END) {
- 257   3                              key = wait_input(7);
- 258   3                              while (key == 0xff) key = wait_input(7);
- 259   3                              state = PREPARE;
- 260   3                              if (key == 16) clearData();// 清屏
- 261   3                              else break;
- 262   3                      }
- 263   2                      DelayMs(10);
- 264   2              }
- 265   1      }
+ 241   6                                                      TempData[7] = dofly_DuanMa[oppo_guess_num];
+ 242   6                                                      key = wait_input(7);
+ 243   6                                                      while (key != 16) key = wait_input(7);
+ 244   6                                                      continue;
+ 245   6                                              }
+ 246   5                                              UART_SendStr(guess);// 傳送猜測
+ 247   5                                              state = WAIT;
+ 248   5                                      }
+ 249   4                                      else if (key == 16 && catchable) {// 抓
+ 250   5                                              UART_SendStr("STOP");
+ 251   5                                              catchable = 0;
+ 252   5                                              state = WAIT;
+ 253   5                                      }
+ 254   4                                      else if (key == 13) switch_show();
+ 255   4                              }
+ 256   3                      }
+ 257   2                      else if (state == END) {
+ 258   3                              key = wait_input(7);
+ 259   3                              while (key == 0xff) key = wait_input(7);
+ 260   3                              state = PREPARE;
+ 261   3                              if (key == 16) clearData();// 清屏
+ 262   3                              else break;
+ 263   3                      }
+ 264   2                      DelayMs(10);
+ 265   2              }
+ 266   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1257    ----
+   CODE SIZE        =   1267    ----
    CONSTANT SIZE    =     35    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----

@@ -1,4 +1,4 @@
-C51 COMPILER V7.08   KEYSCAN                                                               06/08/2024 16:22:08 PAGE 1   
+C51 COMPILER V7.08   KEYSCAN                                                               06/09/2024 00:59:05 PAGE 1   
 
 
 C51 COMPILER V7.08, COMPILATION OF MODULE KEYSCAN
@@ -62,24 +62,24 @@ line level    source
   53   1      }
   54          unsigned char KeyPro(void) {
   55   1          switch (KeyScan()) {
-C51 COMPILER V7.08   KEYSCAN                                                               06/08/2024 16:22:08 PAGE 2   
+C51 COMPILER V7.08   KEYSCAN                                                               06/09/2024 00:59:05 PAGE 2   
 
-  56   2          case 0x7e:return 0; break; // 0 按下相應的鍵顯示相對應的碼值
-  57   2          case 0x7d:return 1; break; // 1
-  58   2          case 0x7b:return 2; break; // 2
-  59   2          case 0x77:return 3; break; // 3
-  60   2          case 0xbe:return 4; break; // 4
-  61   2          case 0xbd:return 5; break; // 5
-  62   2          case 0xbb:return 6; break; // 6
-  63   2          case 0xb7:return 7; break; // 7
-  64   2          case 0xde:return 8; break; // 8
-  65   2          case 0xdd:return 9; break; // 9
-  66   2          case 0xdb:return 10; break; // a
-  67   2          case 0xd7:return 11; break; // 
-  68   2          case 0xee:return 12; break; // 
-  69   2          case 0xed:return 13; break; // 
-  70   2          case 0xeb:return 14; break; // 
-  71   2          case 0xe7:return 15; break; // 準備
+  56   2          case 0x7e:return 1; break; // 1 按下相應的鍵顯示相對應的碼值
+  57   2          case 0x7d:return 2; break; // 2
+  58   2          case 0x7b:return 3; break; // 3
+  59   2          case 0x77:return 4; break; // 4
+  60   2          case 0xbe:return 5; break; // 5
+  61   2          case 0xbd:return 6; break; // 6
+  62   2          case 0xbb:return 7; break; // 7
+  63   2          case 0xb7:return 8; break; // 8
+  64   2          case 0xde:return 9; break; // 9
+  65   2          case 0xdd:return 10; break; // A
+  66   2          case 0xdb:return 11; break; // 
+  67   2          case 0xd7:return 12; break; // 
+  68   2          case 0xee:return 13; break; // 切換顯示
+  69   2          case 0xed:return 14; break; // 
+  70   2          case 0xeb:return 15; break; // 
+  71   2          case 0xe7:return 16; break; // 確認/叫停
   72   2          default:return 0xff; break;
   73   2          }
   74   1      }

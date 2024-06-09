@@ -101,7 +101,7 @@ void switch_show() {
 	TempData[4] = dofly_DuanMa[mynum[4]];
 	TempData[7] = dofly_DuanMa[myLife];
 	key = wait_input(7);
-	while (key != 12) key = wait_input(7);
+	while (key != 13) key = wait_input(7);
 	for (i = 0;i < 8;i++) TempData[i] = temp[i]; //還原
 }
 
@@ -117,7 +117,7 @@ void main(void) {
 	while (1) {
 		if (state == PREPARE) {
 			key = wait_input(7);
-			while (key != 15) key = wait_input(7);
+			while (key != 16) key = wait_input(7);
 			UART_SendStr("READY");// 準備完成
 			state = WAIT;
 		}
@@ -168,7 +168,7 @@ void main(void) {
 					TempData[5] = dofly_DuanMa[oppo_guess_cnt];
 					TempData[7] = dofly_DuanMa[oppo_guess_num];
 					key = wait_input(7);
-					while (key != 15) key = wait_input(7);
+					while (key != 16) key = wait_input(7);
 					clearData();//清屏
 					catchable = 1;//可以抓
 					state = GUESS;
@@ -202,9 +202,9 @@ void main(void) {
 				}
 				key = KeyPro();
 				if (key >= 1 && key <= 10) {
-					while (key != 15) {
+					while (key != 16) {
 						if (key >= 1 && key <= 10) guess_cnt = key;
-						else if (key == 12) switch_show();
+						else if (key == 13) switch_show();
 						TempData[5] = dofly_DuanMa[guess_cnt];
 						key = KeyPro();
 						while (key == 0xff) key = wait_input(5);
@@ -213,11 +213,11 @@ void main(void) {
 					key = KeyPro();
 					while (!(key >= 1 && key <= 6)) {
 						key = KeyPro();
-						if (key == 12) switch_show();
+						if (key == 13) switch_show();
 					}
-					while (key != 15) {
+					while (key != 16) {
 						if (key >= 1 && key <= 6) guess_num = key;
-						else if (key == 12) switch_show();
+						else if (key == 13) switch_show();
 						TempData[7] = dofly_DuanMa[guess_num];
 						key = wait_input(7);
 						while (key == 0xff) key = wait_input(7);
@@ -231,7 +231,7 @@ void main(void) {
 						TempData[2] = 0x50, TempData[3] = 0x5c;
 						TempData[4] = 0x50;
 						key = wait_input(7);
-						while (key != 15) key = wait_input(7);
+						while (key != 16) key = wait_input(7);
 						clearData();
 						// 顯示OPPO X Y
 						TempData[0] = 0x3f, TempData[1] = 0x73;
@@ -240,28 +240,26 @@ void main(void) {
 						TempData[5] = dofly_DuanMa[oppo_guess_cnt];
 						TempData[7] = dofly_DuanMa[oppo_guess_num];
 						key = wait_input(7);
-						while (key != 15) key = wait_input(7);
+						while (key != 16) key = wait_input(7);
 						continue;
 					}
 					UART_SendStr(guess);// 傳送猜測
 					state = WAIT;
 				}
-				else if (key == 15 && catchable) {// 抓
+				else if (key == 16 && catchable) {// 抓
 					UART_SendStr("STOP");
 					catchable = 0;
 					state = WAIT;
 				}
-				else if (key == 12) switch_show();
+				else if (key == 13) switch_show();
 			}
 		}
 		else if (state == END) {
 			key = wait_input(7);
-			while (!(key == 15 || key == 14)) key = wait_input(7);
-			if (key == 14) break;
-			else {
-				clearData();// 清屏
-				state = PREPARE;
-			}
+			while (key == 0xff) key = wait_input(7);
+			state = PREPARE;
+			if (key == 16) clearData();// 清屏
+			else break;
 		}
 		DelayMs(10);
 	}

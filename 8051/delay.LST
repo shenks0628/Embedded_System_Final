@@ -1,4 +1,4 @@
-C51 COMPILER V7.08   DELAY                                                                 06/08/2024 16:22:08 PAGE 1   
+C51 COMPILER V7.08   DELAY                                                                 06/09/2024 00:59:05 PAGE 1   
 
 
 C51 COMPILER V7.08, COMPILATION OF MODULE DELAY
@@ -23,13 +23,12 @@ line level    source
   14           0~255 這裡使用晶振12M，精確延時請使用彙編
   15          ------------------------------------------------*/
   16          void DelayMs(unsigned char t) {
-  17   1      
-  18   1          while (t--) {
-  19   2              //大致延時1mS
+  17   1          while (t--) {
+  18   2              //大致延時1mS
+  19   2              DelayUs2x(245);
   20   2              DelayUs2x(245);
-  21   2              DelayUs2x(245);
-  22   2          }
-  23   1      }
+  21   2          }
+  22   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE

@@ -1,4 +1,4 @@
-C51 COMPILER V7.08   KEYSCAN                                                               06/09/2024 00:59:05 PAGE 1   
+C51 COMPILER V7.08   KEYSCAN                                                               06/09/2024 19:47:19 PAGE 1   
 
 
 C51 COMPILER V7.08, COMPILATION OF MODULE KEYSCAN
@@ -62,7 +62,7 @@ line level    source
   53   1      }
   54          unsigned char KeyPro(void) {
   55   1          switch (KeyScan()) {
-C51 COMPILER V7.08   KEYSCAN                                                               06/09/2024 00:59:05 PAGE 2   
+C51 COMPILER V7.08   KEYSCAN                                                               06/09/2024 19:47:19 PAGE 2   
 
   56   2          case 0x7e:return 1; break; // 1 按下相應的鍵顯示相對應的碼值
   57   2          case 0x7d:return 2; break; // 2

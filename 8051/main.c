@@ -110,6 +110,7 @@ void main(void) {
 	byte key;
 	word state = PREPARE, guess_cnt = 0, guess_num = 0;
 	word oppo_guess_cnt = 0, oppo_guess_num = 1;
+	myLife = 3, oppoLife = 3;
 	InitUART();
 	Init_Timer0();
 	ES = 1;// 打開串口中斷
